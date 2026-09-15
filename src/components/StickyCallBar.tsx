@@ -1,14 +1,15 @@
 "use client";
 
-import { buildWaLink, telLink } from "@/lib/whatsapp";
+import { telLink } from "@/lib/whatsapp";
 
-type Props = { waNumber: string; waMessage: string; phoneDisplay: string };
+type Props = { waNumber: string; phoneDisplay: string };
 
 /**
- * Barra fija SOLO en móvil (md:hidden): Llamar + WhatsApp.
- * Botones de 56px, respeta safe-area. En escritorio se usa el flotante.
+ * Barra fija SOLO en móvil (md:hidden): Llamar + Agendar.
+ * Agendar lleva al formulario (único flujo hacia WhatsApp).
+ * Respeta safe-area. En escritorio no se muestra.
  */
-export default function StickyCallBar({ waNumber, waMessage, phoneDisplay }: Props) {
+export default function StickyCallBar({ waNumber, phoneDisplay }: Props) {
   return (
     <div
       className="fixed inset-x-0 bottom-0 z-50 border-t border-navy-800/10 bg-white/95 px-3 pt-2 backdrop-blur-xl md:hidden"
@@ -17,7 +18,7 @@ export default function StickyCallBar({ waNumber, waMessage, phoneDisplay }: Pro
       <div className="grid grid-cols-2 gap-2.5">
         <a
           href={telLink(waNumber)}
-          className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-2xl bg-navy-800 text-[15px] font-bold text-white active:scale-[0.98]"
+          className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-2xl bg-white text-[15px] font-bold text-navy-800 ring-1 ring-navy-800/20 active:scale-[0.98]"
           aria-label={`Llamar al ${phoneDisplay}`}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
@@ -26,16 +27,11 @@ export default function StickyCallBar({ waNumber, waMessage, phoneDisplay }: Pro
           Llamar
         </a>
         <a
-          href={buildWaLink(waNumber, waMessage)}
-          target="_blank"
-          rel="noopener"
-          className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-2xl bg-[#25D366] text-[15px] font-bold text-white active:scale-[0.98]"
-          aria-label="Agendar por WhatsApp"
+          href="#agendar"
+          className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-2xl bg-navy-800 text-[15px] font-bold text-white active:scale-[0.98]"
+          aria-label="Ir a agendar cita"
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-            <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.2 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.4-.7-2.9-1.2-4.7-4.1-4.9-4.3-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5s.8 1.9.8 2c.1.1.1.3 0 .5-.3.6-.6.8-.4 1.1.6 1.1 1.4 1.8 2.5 2.4.3.1.5 0 .7-.2l.8-.9c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3 0 .2 0 .7-.6 1.8Z" />
-          </svg>
-          WhatsApp
+          Agendar cita
         </a>
       </div>
     </div>

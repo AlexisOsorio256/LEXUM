@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import type { Area } from "@/lib/types";
-import { areaLink } from "@/lib/whatsapp";
+
+export const AREA_EVENT = "lexum:elegir-area";
 
 const ICONS: Record<string, JSX.Element> = {
   familia: (
@@ -45,15 +46,15 @@ const ICONS: Record<string, JSX.Element> = {
 
 type Props = {
   areas: Area[];
-  waNumber: string;
   consultas: Record<string, number>;
 };
 
-/** Áreas de práctica: 1 columna en celular, 2-3 en escritorio. Botón grande de consulta. */
-export default function Areas({ areas, waNumber, consultas }: Props) {
+/** Áreas de práctica: 1 columna en celular, 2-3 en escritorio. "Consultar" lleva al formulario con el área elegida. */
+export default function Areas({ areas, consultas }: Props) {
   const [counts, setCounts] = useState(consultas);
 
-  async function contar(slug: string) {
+  async function contar(slug: string, areaName: string) {
+    window.dispatchEvent(new CustomEvent(AREA_EVENT, { detail: areaName }));
     setCounts((c) => ({ ...c, [slug]: (c[slug] ?? 0) + 1 }));
     try {
       const r = await fetch("/api/like", {
@@ -81,7 +82,7 @@ export default function Areas({ areas, waNumber, consultas }: Props) {
           ¿En qué te podemos ayudar?
         </h2>
         <p className="mt-3 text-[15px] leading-relaxed text-ink/65 md:text-base">
-          Toca “Consultar” y te abrimos WhatsApp con el mensaje listo.
+          Toca “Consultar” y el formulario se prepara con esa área.
           Sin llamadas incómodas, sin compromiso.
         </p>
       </div>
@@ -108,13 +109,11 @@ export default function Areas({ areas, waNumber, consultas }: Props) {
             </ul>
             <div className="mt-5 flex items-center gap-2">
               <a
-                href={areaLink(a.name, waNumber)}
-                target="_blank"
-                rel="noopener"
-                onClick={() => contar(a.slug)}
+                href="#agendar"
+                onClick={() => contar(a.slug, a.name)}
                 className="inline-flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-full bg-navy-800 px-5 text-[15px] font-semibold text-white transition hover:bg-navy-700 active:scale-[0.98]"
               >
-                Consultar por WhatsApp
+                Consultar esta área
               </a>
             </div>
             {(counts[a.slug] ?? 0) > 0 && (

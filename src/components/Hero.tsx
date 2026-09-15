@@ -1,6 +1,6 @@
 "use client";
 
-import { buildWaLink, telLink } from "@/lib/whatsapp";
+import { telLink } from "@/lib/whatsapp";
 import type { SiteSettings } from "@/lib/types";
 
 type Props = { settings: SiteSettings };
@@ -23,7 +23,7 @@ export default function Hero({ settings }: Props) {
         </div>
       </div>
 
-      <div className="relative mx-auto max-w-6xl px-4 pb-16 pt-28 md:pb-24 md:pt-40 lg:px-8">
+      <div className="relative mx-auto max-w-6xl px-4 pb-12 pt-24 md:pb-16 md:pt-32 lg:px-8">
         <div className="max-w-2xl">
           <p className="hero-enter eyebrow !border-gold-400/40 !bg-white/10 !text-gold-200">
             <span className="h-1.5 w-1.5 rounded-full bg-gold-400" />
@@ -42,14 +42,8 @@ export default function Hero({ settings }: Props) {
             Mercantil, Amparo y Notarial.
           </p>
           <div className="hero-enter hero-enter-3 mt-8 flex flex-col gap-3 sm:flex-row">
-            <a
-              href={buildWaLink(settings.whatsapp_number, settings.whatsapp_message)}
-              target="_blank"
-              rel="noopener"
-              className="btn-gold w-full sm:w-auto"
-            >
-              <WaIcon />
-              Agendar por WhatsApp
+            <a href="#agendar" className="btn-gold w-full sm:w-auto">
+              Agendar cita
             </a>
             <a
               href={telLink(settings.whatsapp_number)}
@@ -72,14 +66,6 @@ function ScaleMark() {
     <svg width="120" height="160" viewBox="0 0 24 32" fill="none" stroke="#C9A227" strokeWidth="0.8" strokeLinecap="round" aria-hidden>
       <path d="M12 3v24M5 7h14M5 7l-2.5 6a2.8 2.8 0 0 0 5 0L5 7ZM19 7l-2.5 6a2.8 2.8 0 0 0 5 0L19 7ZM8 27h8" />
       <circle cx="12" cy="4.5" r="0.9" fill="#C9A227" />
-    </svg>
-  );
-}
-
-function WaIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.2 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.4-.7-2.9-1.2-4.7-4.1-4.9-4.3-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5s.8 1.9.8 2c.1.1.1.3 0 .5-.3.6-.6.8-.4 1.1.6 1.1 1.4 1.8 2.5 2.4.3.1.5 0 .7-.2l.8-.9c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3 0 .2 0 .7-.6 1.8Z" />
     </svg>
   );
 }

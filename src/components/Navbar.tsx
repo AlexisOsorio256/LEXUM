@@ -2,16 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { NAV_LINKS } from "@/lib/site";
-import { buildWaLink, telLink } from "@/lib/whatsapp";
+import { telLink } from "@/lib/whatsapp";
 import Logo from "./Logo";
 
 type Props = {
   waNumber: string;
-  waMessage: string;
   phoneDisplay: string;
 };
 
-export default function Navbar({ waNumber, waMessage, phoneDisplay }: Props) {
+export default function Navbar({ waNumber, phoneDisplay }: Props) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -68,9 +67,7 @@ export default function Navbar({ waNumber, waMessage, phoneDisplay }: Props) {
             🔒 Administrador
           </a>
           <a
-            href={buildWaLink(waNumber, waMessage)}
-            target="_blank"
-            rel="noopener"
+            href="#agendar"
             className="rounded-full bg-navy-800 px-5 py-2.5 text-sm font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:bg-navy-700 active:scale-95"
           >
             Agendar cita
@@ -129,17 +126,9 @@ export default function Navbar({ waNumber, waMessage, phoneDisplay }: Props) {
             >
               🔒 Administrador
             </a>
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <a
-                href={buildWaLink(waNumber, waMessage)}
-                target="_blank"
-                rel="noopener"
-                className="btn-wa w-full !px-4 text-[15px]"
-              >
-                WhatsApp
-              </a>
+            <div className="mt-4">
               <a href={telLink(waNumber)} className="btn-primary w-full !px-4 text-[15px]">
-                Llamar
+                Llamar {phoneDisplay}
               </a>
             </div>
             <p className="mt-3 text-center text-xs text-navy-900/50">

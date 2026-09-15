@@ -1,5 +1,5 @@
 import type { SiteSettings } from "@/lib/types";
-import { buildWaLink, telLink, mailLink } from "@/lib/whatsapp";
+import { telLink, mailLink } from "@/lib/whatsapp";
 
 type Props = { settings: SiteSettings };
 
@@ -42,8 +42,8 @@ export default function Contacto({ settings }: Props) {
     {
       t: "Horario",
       d: settings.hours,
-      href: buildWaLink(settings.whatsapp_number, settings.whatsapp_message),
-      label: "Agendar",
+      href: "#agendar",
+      label: "Agendar cita",
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
           <circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" strokeLinecap="round" />

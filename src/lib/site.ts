@@ -27,10 +27,10 @@ export const ADMIN_USER = "admin2026@";
 
 export const NAV_LINKS = [
   { href: "#inicio", label: "Inicio" },
+  { href: "#contacto", label: "Contacto" },
   { href: "#areas", label: "Áreas" },
   { href: "#equipo", label: "Equipo" },
   { href: "#agendar", label: "Agendar" },
-  { href: "#contacto", label: "Contacto" },
 ];
 
 /**

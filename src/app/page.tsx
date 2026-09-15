@@ -5,16 +5,20 @@ import VisitTracker from "@/components/VisitTracker";
 import Reveal from "@/components/Reveal";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
+import Contacto from "@/components/Contacto";
 import Areas from "@/components/Areas";
 import Equipo from "@/components/Equipo";
 import Agendar from "@/components/Agendar";
-import Contacto from "@/components/Contacto";
 import Footer from "@/components/Footer";
-import WhatsAppFloat from "@/components/WhatsAppFloat";
 import StickyCallBar from "@/components/StickyCallBar";
 
 export const revalidate = 60;
 
+/**
+ * Orden: Inicio corto → Contacto → Áreas → Equipo → Agendar.
+ * El visitante ve primero dónde comunicarse; cada dato una sola vez.
+ * Único flujo hacia WhatsApp: el formulario de Agendar.
+ */
 export default async function Home() {
   const settings = despacho.settings as SiteSettings;
   const areas = (despacho.areas as Area[])
@@ -29,26 +33,16 @@ export default async function Home() {
     <main>
       <VisitTracker />
       <Reveal />
-      <Navbar
-        waNumber={settings.whatsapp_number}
-        waMessage={settings.whatsapp_message}
-        phoneDisplay={settings.phone_display}
-      />
+      <Navbar waNumber={settings.whatsapp_number} phoneDisplay={settings.phone_display} />
       <Hero settings={settings} />
-
-      <Areas areas={areas} waNumber={settings.whatsapp_number} consultas={metrics.likes} />
+      <Contacto settings={settings} />
+      <Areas areas={areas} consultas={metrics.likes} />
       <Equipo abogados={abogados} />
       <Agendar areas={areas} waNumber={settings.whatsapp_number} />
-      <Contacto settings={settings} />
       <Footer settings={settings} />
       {/* espacio para que la barra fija móvil no tape el final */}
       <div aria-hidden className="h-[76px] bg-navy-950 md:hidden" />
-      <StickyCallBar
-        waNumber={settings.whatsapp_number}
-        waMessage={settings.whatsapp_message}
-        phoneDisplay={settings.phone_display}
-      />
-      <WhatsAppFloat waNumber={settings.whatsapp_number} waMessage={settings.whatsapp_message} />
+      <StickyCallBar waNumber={settings.whatsapp_number} phoneDisplay={settings.phone_display} />
     </main>
   );
 }

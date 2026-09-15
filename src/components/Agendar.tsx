@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Area } from "@/lib/types";
 import { citaLink } from "@/lib/whatsapp";
+import { AREA_EVENT } from "./Areas";
 
 type Props = {
   areas: Area[];
@@ -14,6 +15,16 @@ export default function Agendar({ areas, waNumber }: Props) {
   const [area, setArea] = useState("");
   const [mensaje, setMensaje] = useState("");
   const [error, setError] = useState("");
+
+  // Si elige un área en la sección Áreas, el formulario la preselecciona.
+  useEffect(() => {
+    const onArea = (e: Event) => {
+      const name = (e as CustomEvent<string>).detail;
+      if (typeof name === "string" && name) setArea(name);
+    };
+    window.addEventListener(AREA_EVENT, onArea);
+    return () => window.removeEventListener(AREA_EVENT, onArea);
+  }, []);
 
   function agendar(e: React.FormEvent) {
     e.preventDefault();
