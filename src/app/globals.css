@@ -80,6 +80,14 @@ h3 {
     transform: none;
   }
 }
+@keyframes shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
 @keyframes floatSoft {
   0%,
   100% {
@@ -100,6 +108,14 @@ h3 {
 }
 .hero-enter-3 {
   animation-delay: 0.3s;
+}
+.gold-shimmer {
+  background: linear-gradient(90deg, #e8d5a8, #c9a227, #f5ecd0, #c9a227, #e8d5a8);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3.5s linear infinite;
 }
 .float-soft {
   animation: floatSoft 7s ease-in-out infinite;

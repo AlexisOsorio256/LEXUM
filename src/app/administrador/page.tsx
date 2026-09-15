@@ -40,7 +40,7 @@ type Settings = {
 
 type Metrics = { visits: number; likes: Record<string, number>; totalLikes: number };
 
-const ICONS = ["balanza", "familia", "contrato", "escudo", "tierra", "negocio", "documento"];
+const ICONS = ["balanza", "familia", "contrato", "escudo", "tierra", "negocio", "documento"] as const;
 
 export default function AdministradorPage() {
   const [checking, setChecking] = useState(true);
@@ -53,16 +53,20 @@ export default function AdministradorPage() {
   const [abogados, setAbogados] = useState<Abogado[]>([]);
   const [settings, setSettings] = useState<Settings | null>(null);
   const [metrics, setMetrics] = useState<Metrics | null>(null);
-  const [tab, setTab] = useState<"resumen" | "areas" | "equipo" | "datos" | "fotos" | "seguridad">("resumen");
+  const [tab, setTab] = useState<"resumen" | "areas" | "equipo" | "datos" | "seguridad">("resumen");
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [editingArea, setEditingArea] = useState<Area | null>(null);
   const [showNewArea, setShowNewArea] = useState(false);
   const [newAreaName, setNewAreaName] = useState("");
   const [newAreaDesc, setNewAreaDesc] = useState("");
   const [newAreaPoints, setNewAreaPoints] = useState("");
-  const [newAreaIcon, setNewAreaIcon] = useState("balanza");
+  const [newAreaIcon, setNewAreaIcon] = useState<string>("balanza");
   const [editingAbogado, setEditingAbogado] = useState<Abogado | null>(null);
+  const [showNewAbogado, setShowNewAbogado] = useState(false);
+  const [newAbName, setNewAbName] = useState("");
+  const [newAbCedula, setNewAbCedula] = useState("");
+  const [newAbRol, setNewAbRol] = useState("Abogado · Socio");
+  const [newAbBio, setNewAbBio] = useState("");
   const [meUser, setMeUser] = useState("");
   const [secCurUser, setSecCurUser] = useState("");
   const [secCurPass, setSecCurPass] = useState("");
@@ -241,6 +245,22 @@ export default function AdministradorPage() {
     setOk("Área agregada. Se publica en 1-2 minutos.");
   }
 
+  async function deleteArea(id: string) {
+    if (!confirm("¿Borrar esta área de la página?")) return;
+    const next = areas.filter((x) => x.id !== id);
+    setAreas(next);
+    setError("");
+    setOk("");
+    const { ok, data } = await persist(next, abogados, settings);
+    if (!ok) {
+      setAreas(areas);
+      setError(data.error ?? "No se pudo borrar");
+      return;
+    }
+    applySaved(data);
+    setOk("Área borrada. Se quita en 1-2 minutos.");
+  }
+
   async function toggleAbogadoVisible(b: Abogado) {
     const next = abogados.map((x) => (x.id === b.id ? { ...x, visible: !x.visible } : x));
     setAbogados(next);
@@ -256,6 +276,56 @@ export default function AdministradorPage() {
     setOk("Actualizado. Se publica en 1-2 minutos.");
   }
 
+  async function createAbogado() {
+    if (!newAbName.trim() || !newAbCedula.trim()) {
+      setError("Escriba el nombre completo y la cédula.");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    setOk("");
+    const slug = slugify(newAbName) || `ab-${Date.now()}`;
+    const next: Abogado = {
+      id: slug,
+      name: newAbName.trim(),
+      cedula: newAbCedula.replace(/\D/g, ""),
+      rol: newAbRol.trim() || "Abogado · Socio",
+      bio: newAbBio.trim(),
+      visible: true,
+      sort_order: abogados.length,
+    };
+    const list = [...abogados, next];
+    const { ok, data } = await persist(areas, list, settings);
+    setSaving(false);
+    if (!ok) {
+      setError(data.error ?? "No se pudo guardar");
+      return;
+    }
+    applySaved(data);
+    setNewAbName("");
+    setNewAbCedula("");
+    setNewAbRol("Abogado · Socio");
+    setNewAbBio("");
+    setShowNewAbogado(false);
+    setOk("Abogado agregado. Se publica en 1-2 minutos.");
+  }
+
+  async function deleteAbogado(id: string) {
+    if (!confirm("¿Borrar a este abogado de la página?")) return;
+    const next = abogados.filter((x) => x.id !== id);
+    setAbogados(next);
+    setError("");
+    setOk("");
+    const { ok, data } = await persist(areas, next, settings);
+    if (!ok) {
+      setAbogados(abogados);
+      setError(data.error ?? "No se pudo borrar");
+      return;
+    }
+    applySaved(data);
+    setOk("Abogado borrado. Se quita en 1-2 minutos.");
+  }
+
   async function saveAll(msg = "Guardado. La página se actualiza sola en 1-2 minutos.") {
     if (!settings) return;
     setSaving(true);
@@ -269,36 +339,6 @@ export default function AdministradorPage() {
     }
     applySaved(data);
     setOk(msg);
-  }
-
-  function fileToDataUrl(file: File): Promise<string> {
-    return new Promise((res, rej) => {
-      const r = new FileReader();
-      r.onload = () => res(String(r.result));
-      r.onerror = rej;
-      r.readAsDataURL(file);
-    });
-  }
-
-  async function uploadImage(file: File) {
-    setUploading(true);
-    setError("");
-    setOk("");
-    try {
-      const dataUrl = await fileToDataUrl(file);
-      const r = await fetch("/api/admin/upload", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ dataUrl }),
-      });
-      const d = await r.json();
-      if (!r.ok) throw new Error(d.error ?? "No se pudo subir");
-      setOk(`Foto subida: ${d.path}. Aparece en la página en 1-2 minutos. Si es el logo, avise para colocarlo como principal.`);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "No se pudo subir la foto");
-    } finally {
-      setUploading(false);
-    }
   }
 
   if (checking)
@@ -317,12 +357,8 @@ export default function AdministradorPage() {
           autoComplete="off"
         >
           <p className="text-center text-3xl">⚖️</p>
-          <h1 className="mt-2 text-center font-serif text-2xl font-black text-navy-900">
-            LEXUM · Administrador
-          </h1>
-          <p className="mt-1 text-center text-xs font-semibold uppercase tracking-[0.2em] text-navy-800/45">
-            🔒 Acceso restringido
-          </p>
+          <h1 className="mt-2 text-center font-serif text-2xl font-black text-navy-900">LEXUM · Administrador</h1>
+          <p className="mt-1 text-center text-xs font-semibold uppercase tracking-[0.2em] text-navy-800/45">🔒 Acceso restringido</p>
           <label className="label mt-5" htmlFor="adm-user">Usuario</label>
           <input
             id="adm-user"
@@ -350,9 +386,7 @@ export default function AdministradorPage() {
           {error && <p className="mt-3 text-center text-sm font-medium text-red-600">{error}</p>}
           <button className="btn-primary mt-6 w-full">Entrar</button>
         </form>
-        <a href="/" className="btn-ghost mx-auto mt-3 flex max-w-sm !py-3">
-          ← Volver a la página
-        </a>
+        <a href="/" className="btn-ghost mx-auto mt-3 flex max-w-sm !py-3">← Volver a la página</a>
       </Shell>
     );
   }
@@ -361,66 +395,70 @@ export default function AdministradorPage() {
     .map((a) => ({ ...a, count: metrics ? Number(metrics.likes[a.slug] ?? 0) : 0 }))
     .sort((a, b) => b.count - a.count);
   const maxCount = Math.max(1, ...top.map((a) => a.count));
+  const TAB_STYLE = (t: string) =>
+    `shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold transition ${
+      tab === t ? "bg-navy-800 text-white shadow-card" : "border border-navy-800/10 bg-white text-navy-800 hover:bg-navy-50"
+    }`;
 
   return (
     <Shell>
       <div className="mx-auto max-w-3xl px-4 py-6 md:py-8">
-        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-navy-800 via-navy-900 to-navy-950 p-6 text-white shadow-float md:p-7">
+        {/* Encabezado: oscuro con dorado, más visual sin texto largo */}
+        <div className="relative overflow-hidden rounded-[2rem] bg-navy-950 p-6 text-white shadow-float md:p-7">
+          <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_45%_at_50%_0%,#1E4A7A_0%,transparent_65%)]" />
+          <div aria-hidden className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gold-400/15 blur-2xl" />
           <div className="relative flex items-start justify-between gap-3">
-            <div>
-              <p className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-gold-200">
-                🔒 Modo administrador
-              </p>
-              <h1 className="mt-2.5 font-serif text-[24px] font-black leading-tight md:text-[28px]">
-                Panel de control LEXUM
-              </h1>
-              <p className="mt-1 text-[13px] text-white/60">
-                Funciona en computadora y celular. Los cambios se publican solos en 1-2 min.
-              </p>
+            <div className="flex gap-4">
+              <span className="hidden h-12 w-12 shrink-0 place-items-center rounded-2xl bg-white/10 text-xl ring-1 ring-white/20 md:grid">⚖️</span>
+              <div>
+                <p className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-gold-200">
+                  🔒 Administrador
+                </p>
+                <h1 className="mt-2 font-serif text-[22px] font-black leading-tight md:text-[26px]">LEXUM · Panel</h1>
+                <p className="mt-1 text-xs text-white/60">{meUser || "Sesión activa"}</p>
+              </div>
             </div>
-            <button
-              className="shrink-0 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur transition hover:bg-white/20"
-              onClick={logout}
-            >
+            <button className="shrink-0 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur transition hover:bg-white/20" onClick={logout}>
               Salir
             </button>
           </div>
         </div>
 
-        <div className="mt-5 flex gap-2 overflow-x-auto pb-1">
-          {(
-            [
-              ["resumen", "📊 Resumen"],
-              ["areas", "⚖️ Áreas"],
-              ["equipo", "👥 Equipo"],
-              ["datos", "⚙️ Datos"],
-              ["fotos", "📷 Fotos"],
-              ["seguridad", "🔐 Seguridad"],
-            ] as const
-          ).map(([t, label]) => (
-            <button
-              key={t}
-              onClick={() => {
-                setTab(t);
-                setEditingArea(null);
-                setEditingAbogado(null);
-                setOk("");
-                setError("");
-                setSecDone("");
-                if (t === "resumen") loadMetrics();
-              }}
-              className={`shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold sm:px-5 ${tab === t ? "bg-navy-800 text-white" : "border border-navy-800/10 bg-white"}`}
-            >
-              {label}
-            </button>
-          ))}
+        <div className="mt-5 overflow-hidden rounded-3xl border border-navy-800/10 bg-white p-1.5 shadow-sm">
+          <div className="flex gap-1.5 overflow-x-auto">
+            {(
+              [
+                ["resumen", "Resumen"],
+                ["areas", "Áreas"],
+                ["equipo", "Equipo"],
+                ["datos", "Datos"],
+                ["seguridad", "Seguridad"],
+              ] as const
+            ).map(([t, label]) => (
+              <button
+                key={t}
+                onClick={() => {
+                  setTab(t);
+                  setEditingArea(null);
+                  setEditingAbogado(null);
+                  setOk("");
+                  setError("");
+                  setSecDone("");
+                  if (t === "resumen") loadMetrics();
+                }}
+                className={TAB_STYLE(t)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {error && <p className="mt-4 rounded-2xl bg-red-50 p-4 text-sm font-medium text-red-700">{error}</p>}
         {ok && <p className="mt-4 rounded-2xl bg-green-50 p-4 text-sm font-medium text-green-700">{ok}</p>}
 
         {tab === "resumen" && (
-          <div className="mt-5">
+          <div className="mt-5 space-y-4">
             <div className="grid grid-cols-3 gap-3">
               <div className="card-admin text-center">
                 <p className="text-2xl">👀</p>
@@ -441,15 +479,15 @@ export default function AdministradorPage() {
                 <p className="mt-1 font-serif text-2xl font-black text-navy-900 sm:text-3xl">
                   {areas.filter((a) => a.visible).length}
                 </p>
-                <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-ink/55">Áreas</p>
+                <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-ink/55">Áreas visibles</p>
               </div>
             </div>
 
-            <div className="card-admin mt-4">
+            <div className="card-admin">
               <div className="flex items-center justify-between gap-3">
                 <h2 className="font-serif text-lg font-bold text-navy-900">Lo más consultado</h2>
                 <button onClick={loadMetrics} className="rounded-full bg-navy-50 px-4 py-1.5 text-xs font-bold text-navy-800">
-                  🔄 Actualizar
+                  Actualizar
                 </button>
               </div>
               <div className="mt-4 space-y-3">
@@ -457,7 +495,7 @@ export default function AdministradorPage() {
                   <div key={a.id}>
                     <div className="flex items-center justify-between gap-2 text-sm">
                       <p className="truncate font-semibold text-navy-900">{a.name}</p>
-                      <p className="shrink-0 font-bold text-navy-800">💬 {a.count}</p>
+                      <p className="shrink-0 font-bold text-navy-800">{a.count}</p>
                     </div>
                     <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-navy-50">
                       <div
@@ -468,42 +506,6 @@ export default function AdministradorPage() {
                   </div>
                 ))}
               </div>
-              <p className="mt-4 text-xs leading-relaxed text-ink/55">
-                👀 Visitas = veces que abrieron la página. 💬 Consultas = toques en “Consultar por WhatsApp” por área.
-              </p>
-            </div>
-
-            <div className="card-admin mt-4">
-              <h2 className="font-serif text-lg font-bold text-navy-900">Accesos rápidos</h2>
-              <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-                <button onClick={() => setTab("areas")} className="rounded-2xl bg-navy-800 px-4 py-3.5 text-sm font-bold text-white transition active:scale-[0.98]">
-                  ⚖️ Editar áreas
-                </button>
-                <button onClick={() => setTab("equipo")} className="rounded-2xl bg-navy-800 px-4 py-3.5 text-sm font-bold text-white transition active:scale-[0.98]">
-                  👥 Editar equipo
-                </button>
-                <button onClick={() => setTab("datos")} className="rounded-2xl border border-navy-800/15 bg-white px-4 py-3.5 text-sm font-bold text-navy-900 transition active:scale-[0.98]">
-                  ⚙️ Cambiar datos
-                </button>
-              </div>
-            </div>
-
-            <div className="card-admin mt-4">
-              <h2 className="font-serif text-lg font-bold text-navy-900">¿Cómo se publica un cambio?</h2>
-              <ol className="mt-3 space-y-2.5 text-[14px] leading-relaxed text-ink/70">
-                <li className="flex gap-3">
-                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-navy-800 text-[13px] font-black text-gold-300">1</span>
-                  <span>Edite lo necesario y toque <b>Guardar</b>.</span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-navy-800 text-[13px] font-black text-gold-300">2</span>
-                  <span>Espere 1-2 minutos sin tocar nada más.</span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-navy-800 text-[13px] font-black text-gold-300">3</span>
-                  <span>Abra la página en su celular y compruebe el cambio.</span>
-                </li>
-              </ol>
             </div>
           </div>
         )}
@@ -512,24 +514,24 @@ export default function AdministradorPage() {
           <div className="mt-5 space-y-3">
             {areas.map((a) => (
               <div key={a.id} className="flex items-center gap-3 rounded-3xl border border-navy-800/10 bg-white p-4 shadow-sm">
-                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-navy-800 text-sm font-black text-gold-300">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-navy-800 text-sm font-black text-gold-300">
                   {a.name.slice(0, 2).toUpperCase()}
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-semibold text-navy-900">{a.name}</p>
-                  <p className="truncate text-xs text-ink/55">
-                    {a.points.slice(0, 2).join(" · ")} · {a.visible ? "Visible" : "Oculta"}
-                  </p>
+                  <p className="truncate text-xs text-ink/55">{a.points.slice(0, 2).join(" · ")} · {a.visible ? "Visible" : "Oculta"}</p>
                 </div>
                 <button
                   onClick={() => toggleAreaVisible(a)}
                   className={`shrink-0 rounded-full px-3 py-2 text-[13px] font-bold ${a.visible ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-500"}`}
-                  aria-label={a.visible ? `Ocultar ${a.name}` : `Mostrar ${a.name}`}
                 >
                   {a.visible ? "Visible" : "Oculta"}
                 </button>
-                <button onClick={() => { setEditingArea({ ...a }); setShowNewArea(false); }} className="shrink-0 rounded-full bg-navy-800 px-4 py-2 text-sm font-semibold text-white">
+                <button onClick={() => { setEditingArea({ ...a }); setShowNewArea(false); }} className="shrink-0 rounded-full bg-navy-800 px-3.5 py-2 text-sm font-semibold text-white">
                   Editar
+                </button>
+                <button onClick={() => deleteArea(a.id)} className="shrink-0 rounded-full bg-red-50 px-3 py-2 text-sm font-bold text-red-700">
+                  Borrar
                 </button>
               </div>
             ))}
@@ -542,24 +544,14 @@ export default function AdministradorPage() {
                 <h2 className="font-serif text-xl font-bold text-navy-900">Nueva área</h2>
                 <label className="label mt-4">Nombre</label>
                 <input className="field" value={newAreaName} onChange={(e) => setNewAreaName(e.target.value)} autoComplete="off" maxLength={40} />
-                <label className="label mt-4">Descripción corta</label>
-                <textarea className="field min-h-20" value={newAreaDesc} onChange={(e) => setNewAreaDesc(e.target.value)} maxLength={160} />
+                <label className="label mt-4">Descripción</label>
+                <textarea className="field min-h-20" value={newAreaDesc} onChange={(e) => setNewAreaDesc(e.target.value)} maxLength={200} />
                 <label className="label mt-4">Puntos (uno por línea, máx 6)</label>
-                <textarea
-                  className="field min-h-24"
-                  value={newAreaPoints}
-                  onChange={(e) => setNewAreaPoints(e.target.value)}
-                  placeholder={"Un punto por línea"}
-                />
+                <textarea className="field min-h-24" value={newAreaPoints} onChange={(e) => setNewAreaPoints(e.target.value)} />
                 <label className="label mt-4">Icono</label>
                 <div className="flex flex-wrap gap-2">
                   {ICONS.map((ic) => (
-                    <button
-                      key={ic}
-                      type="button"
-                      onClick={() => setNewAreaIcon(ic)}
-                      className={`rounded-full px-4 py-2 text-sm font-semibold ${newAreaIcon === ic ? "bg-navy-800 text-white" : "border border-navy-800/15 bg-white"}`}
-                    >
+                    <button key={ic} type="button" onClick={() => setNewAreaIcon(ic)} className={`rounded-full px-4 py-2 text-sm font-semibold ${newAreaIcon === ic ? "bg-navy-800 text-white" : "border border-navy-800/15 bg-white"}`}>
                       {ic}
                     </button>
                   ))}
@@ -568,9 +560,7 @@ export default function AdministradorPage() {
                   <button disabled={saving} onClick={createArea} className="btn-primary flex-1 !py-3.5">
                     {saving ? "Guardando…" : "Guardar área"}
                   </button>
-                  <button type="button" onClick={() => setShowNewArea(false)} className="btn-ghost">
-                    Atrás
-                  </button>
+                  <button type="button" onClick={() => setShowNewArea(false)} className="btn-ghost">Atrás</button>
                 </div>
               </div>
             )}
@@ -581,35 +571,21 @@ export default function AdministradorPage() {
           <div className="card-admin mt-5">
             <h2 className="font-serif text-xl font-bold text-navy-900">Editar área: {editingArea.name}</h2>
             <label className="label mt-4">Nombre</label>
-            <input className="field" value={editingArea.name} onChange={(e) => setEditingArea({ ...editingArea, name: e.target.value })} />
+            <input className="field" value={editingArea.name} onChange={(e) => setEditingArea({ ...editingArea, name: e.target.value })} autoComplete="off" maxLength={40} />
             <label className="label mt-4">Descripción</label>
-            <textarea className="field min-h-20" value={editingArea.description} onChange={(e) => setEditingArea({ ...editingArea, description: e.target.value })} />
+            <textarea className="field min-h-20" value={editingArea.description} onChange={(e) => setEditingArea({ ...editingArea, description: e.target.value })} maxLength={200} />
             <label className="label mt-4">Puntos (uno por línea, máx 6)</label>
-            <textarea
-              className="field min-h-24"
-              value={editingArea.points.join("\n")}
-              onChange={(e) => setEditingArea({ ...editingArea, points: e.target.value.split("\n").map((s) => s.trim()).filter(Boolean).slice(0, 6) })}
-            />
+            <textarea className="field min-h-24" value={editingArea.points.join("\n")} onChange={(e) => setEditingArea({ ...editingArea, points: e.target.value.split("\n").map((s) => s.trim()).filter(Boolean).slice(0, 6) })} />
             <label className="label mt-4">Icono</label>
             <div className="flex flex-wrap gap-2">
               {ICONS.map((ic) => (
-                <button
-                  key={ic}
-                  type="button"
-                  onClick={() => setEditingArea({ ...editingArea, icon: ic })}
-                  className={`rounded-full px-4 py-2 text-sm font-semibold ${editingArea.icon === ic ? "bg-navy-800 text-white" : "border border-navy-800/15 bg-white"}`}
-                >
+                <button key={ic} type="button" onClick={() => setEditingArea({ ...editingArea, icon: ic })} className={`rounded-full px-4 py-2 text-sm font-semibold ${editingArea.icon === ic ? "bg-navy-800 text-white" : "border border-navy-800/15 bg-white"}`}>
                   {ic}
                 </button>
               ))}
             </div>
             <label className="mt-4 flex min-h-[48px] cursor-pointer items-center gap-3 rounded-2xl border border-navy-800/10 px-4">
-              <input
-                type="checkbox"
-                checked={editingArea.visible}
-                onChange={(e) => setEditingArea({ ...editingArea, visible: e.target.checked })}
-                className="h-5 w-5 accent-[#0F2A44]"
-              />
+              <input type="checkbox" checked={editingArea.visible} onChange={(e) => setEditingArea({ ...editingArea, visible: e.target.checked })} className="h-5 w-5 accent-[#0F2A44]" />
               <span className="text-sm font-semibold text-navy-900">Visible en la página</span>
             </label>
             <div className="mt-5 flex gap-3">
@@ -624,10 +600,7 @@ export default function AdministradorPage() {
                   setOk("");
                   const { ok, data } = await persist(next, abogados, settings);
                   setSaving(false);
-                  if (!ok) {
-                    setError(data.error ?? "No se pudo guardar");
-                    return;
-                  }
+                  if (!ok) { setError(data.error ?? "No se pudo guardar"); return; }
                   applySaved(data);
                   setOk("Área guardada. Se publica en 1-2 minutos.");
                 }}
@@ -635,9 +608,7 @@ export default function AdministradorPage() {
               >
                 {saving ? "Guardando…" : "Guardar"}
               </button>
-              <button type="button" onClick={() => setEditingArea(null)} className="btn-ghost">
-                Atrás
-              </button>
+              <button type="button" onClick={() => setEditingArea(null)} className="btn-ghost">Atrás</button>
             </div>
           </div>
         )}
@@ -653,18 +624,40 @@ export default function AdministradorPage() {
                   <p className="truncate font-semibold text-navy-900">{b.name}</p>
                   <p className="truncate text-xs text-ink/55">Céd. {b.cedula} · {b.rol}</p>
                 </div>
-                <button
-                  onClick={() => toggleAbogadoVisible(b)}
-                  className={`shrink-0 rounded-full px-3 py-2 text-[13px] font-bold ${b.visible ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-500"}`}
-                  aria-label={b.visible ? `Ocultar a ${b.name}` : `Mostrar a ${b.name}`}
-                >
+                <button onClick={() => toggleAbogadoVisible(b)} className={`shrink-0 rounded-full px-3 py-2 text-[13px] font-bold ${b.visible ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-500"}`}>
                   {b.visible ? "Visible" : "Oculto"}
                 </button>
-                <button onClick={() => setEditingAbogado({ ...b })} className="shrink-0 rounded-full bg-navy-800 px-4 py-2 text-sm font-semibold text-white">
+                <button onClick={() => setEditingAbogado({ ...b })} className="shrink-0 rounded-full bg-navy-800 px-3.5 py-2 text-sm font-semibold text-white">
                   Editar
                 </button>
+                <button onClick={() => deleteAbogado(b.id)} className="shrink-0 rounded-full bg-red-50 px-3 py-2 text-sm font-bold text-red-700">Borrar</button>
               </div>
             ))}
+            {!showNewAbogado ? (
+              <button onClick={() => { setShowNewAbogado(true); setError(""); setOk(""); }} className="w-full rounded-3xl border-2 border-dashed border-navy-800/20 p-5 font-bold text-navy-800">+ Agregar abogado</button>
+            ) : (
+              <div className="card-admin">
+                <h2 className="font-serif text-xl font-bold text-navy-900">Nuevo abogado</h2>
+                <label className="label mt-4">Nombre completo</label>
+                <input className="field" value={newAbName} onChange={(e) => setNewAbName(e.target.value)} autoComplete="off" maxLength={80} />
+                <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="label">Cédula</label>
+                    <input className="field" value={newAbCedula} onChange={(e) => setNewAbCedula(e.target.value.replace(/\D/g, ""))} inputMode="numeric" autoComplete="off" />
+                  </div>
+                  <div>
+                    <label className="label">Rol</label>
+                    <input className="field" value={newAbRol} onChange={(e) => setNewAbRol(e.target.value)} autoComplete="off" />
+                  </div>
+                </div>
+                <label className="label mt-4">Presentación</label>
+                <textarea className="field min-h-20" value={newAbBio} onChange={(e) => setNewAbBio(e.target.value)} maxLength={180} />
+                <div className="mt-5 flex gap-3">
+                  <button disabled={saving} onClick={createAbogado} className="btn-primary flex-1 !py-3.5">{saving ? "Guardando…" : "Guardar abogado"}</button>
+                  <button type="button" onClick={() => setShowNewAbogado(false)} className="btn-ghost">Atrás</button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -672,19 +665,19 @@ export default function AdministradorPage() {
           <div className="card-admin mt-5">
             <h2 className="font-serif text-xl font-bold text-navy-900">Editar abogado</h2>
             <label className="label mt-4">Nombre completo</label>
-            <input className="field" value={editingAbogado.name} onChange={(e) => setEditingAbogado({ ...editingAbogado, name: e.target.value })} />
+            <input className="field" value={editingAbogado.name} onChange={(e) => setEditingAbogado({ ...editingAbogado, name: e.target.value })} autoComplete="off" maxLength={80} />
             <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label className="label">Cédula Profesional Federal</label>
-                <input className="field" value={editingAbogado.cedula} onChange={(e) => setEditingAbogado({ ...editingAbogado, cedula: e.target.value.replace(/\D/g, "") })} inputMode="numeric" />
+                <input className="field" value={editingAbogado.cedula} onChange={(e) => setEditingAbogado({ ...editingAbogado, cedula: e.target.value.replace(/\D/g, "") })} inputMode="numeric" autoComplete="off" />
               </div>
               <div>
                 <label className="label">Rol</label>
-                <input className="field" value={editingAbogado.rol} onChange={(e) => setEditingAbogado({ ...editingAbogado, rol: e.target.value })} />
+                <input className="field" value={editingAbogado.rol} onChange={(e) => setEditingAbogado({ ...editingAbogado, rol: e.target.value })} autoComplete="off" />
               </div>
             </div>
             <label className="label mt-4">Presentación corta</label>
-            <textarea className="field min-h-20" value={editingAbogado.bio} onChange={(e) => setEditingAbogado({ ...editingAbogado, bio: e.target.value })} maxLength={160} />
+            <textarea className="field min-h-20" value={editingAbogado.bio} onChange={(e) => setEditingAbogado({ ...editingAbogado, bio: e.target.value })} maxLength={180} />
             <div className="mt-5 flex gap-3">
               <button
                 disabled={saving}
@@ -697,10 +690,7 @@ export default function AdministradorPage() {
                   setOk("");
                   const { ok, data } = await persist(areas, next, settings);
                   setSaving(false);
-                  if (!ok) {
-                    setError(data.error ?? "No se pudo guardar");
-                    return;
-                  }
+                  if (!ok) { setError(data.error ?? "No se pudo guardar"); return; }
                   applySaved(data);
                   setOk("Equipo guardado. Se publica en 1-2 minutos.");
                 }}
@@ -708,9 +698,7 @@ export default function AdministradorPage() {
               >
                 {saving ? "Guardando…" : "Guardar"}
               </button>
-              <button type="button" onClick={() => setEditingAbogado(null)} className="btn-ghost">
-                Atrás
-              </button>
+              <button type="button" onClick={() => setEditingAbogado(null)} className="btn-ghost">Atrás</button>
             </div>
           </div>
         )}
@@ -719,55 +707,25 @@ export default function AdministradorPage() {
           <div className="card-admin mt-5">
             <h2 className="font-serif text-xl font-bold text-navy-900">Datos del despacho</h2>
             <label className="label mt-4">Número de WhatsApp (con código país, sin + ni espacios)</label>
-            <input className="field" value={settings.whatsapp_number} onChange={(e) => setSettings({ ...settings, whatsapp_number: e.target.value.replace(/\D/g, "") })} inputMode="numeric" />
+            <input className="field" value={settings.whatsapp_number} onChange={(e) => setSettings({ ...settings, whatsapp_number: e.target.value.replace(/\D/g, "") })} inputMode="numeric" autoComplete="off" />
             <p className="hint">Con código de país, sin + ni espacios.</p>
             <label className="label mt-4">Teléfono visible</label>
-            <input className="field" value={settings.phone_display} onChange={(e) => setSettings({ ...settings, phone_display: e.target.value })} />
+            <input className="field" value={settings.phone_display} onChange={(e) => setSettings({ ...settings, phone_display: e.target.value })} autoComplete="off" />
             <label className="label mt-4">Mensaje inicial de WhatsApp</label>
-            <textarea className="field min-h-20" value={settings.whatsapp_message} onChange={(e) => setSettings({ ...settings, whatsapp_message: e.target.value })} />
+            <textarea className="field min-h-20" value={settings.whatsapp_message} onChange={(e) => setSettings({ ...settings, whatsapp_message: e.target.value })} autoComplete="off" />
             <label className="label mt-4">Correo</label>
-            <input className="field" value={settings.email} onChange={(e) => setSettings({ ...settings, email: e.target.value })} inputMode="email" />
+            <input className="field" value={settings.email} onChange={(e) => setSettings({ ...settings, email: e.target.value })} inputMode="email" autoComplete="off" />
             <label className="label mt-4">Dirección</label>
-            <input className="field" value={settings.address} onChange={(e) => setSettings({ ...settings, address: e.target.value })} />
+            <input className="field" value={settings.address} onChange={(e) => setSettings({ ...settings, address: e.target.value })} autoComplete="off" />
             <label className="label mt-4">Horario</label>
-            <input className="field" value={settings.hours} onChange={(e) => setSettings({ ...settings, hours: e.target.value })} />
+            <input className="field" value={settings.hours} onChange={(e) => setSettings({ ...settings, hours: e.target.value })} autoComplete="off" />
             <label className="label mt-4">Lema</label>
-            <input className="field" value={settings.slogan} onChange={(e) => setSettings({ ...settings, slogan: e.target.value })} />
+            <input className="field" value={settings.slogan} onChange={(e) => setSettings({ ...settings, slogan: e.target.value })} autoComplete="off" />
             <label className="label mt-4">Enlace de Google Maps</label>
-            <input className="field" value={settings.maps_url} onChange={(e) => setSettings({ ...settings, maps_url: e.target.value })} />
+            <input className="field" value={settings.maps_url} onChange={(e) => setSettings({ ...settings, maps_url: e.target.value })} autoComplete="off" />
             <button disabled={saving} onClick={() => saveAll()} className="btn-primary mt-5 w-full !py-3.5">
               {saving ? "Guardando…" : "Guardar datos"}
             </button>
-          </div>
-        )}
-
-        {tab === "fotos" && (
-          <div className="card-admin mt-5">
-            <h2 className="font-serif text-xl font-bold text-navy-900">Fotos: logo y banner</h2>
-            <p className="mt-2 text-sm leading-relaxed text-ink/60">
-              Suba aquí el logo LEXUM y la imagen azul de servicios desde el celular o la computadora.
-              Quedan guardadas en el repositorio y la página las usa en 1-2 minutos.
-            </p>
-            <div className="mt-4 rounded-2xl bg-navy-50 p-4 text-[13px] leading-relaxed text-navy-800">
-              <p className="font-bold">Nombres que usa la página automáticamente:</p>
-              <p className="mt-1">• <code>/images/logo.jpg</code> → logotipo del menú</p>
-              <p>• <code>/images/banner.jpg</code> → foto del hero</p>
-              <p className="mt-2 text-navy-800/60">Si sube con otro nombre, avise para colocarlo como principal.</p>
-            </div>
-            <label className="mt-4 inline-flex min-h-[52px] cursor-pointer items-center gap-2 rounded-full bg-navy-800 px-6 text-[15px] font-bold text-white active:scale-[0.98]">
-              {uploading ? "Subiendo…" : "📷 Subir foto"}
-              <input
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                className="hidden"
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) uploadImage(f);
-                  e.target.value = "";
-                }}
-              />
-            </label>
-            <p className="hint">JPG o PNG, de preferencia menos de 3 MB. Funciona desde el celular.</p>
           </div>
         )}
 
@@ -775,40 +733,22 @@ export default function AdministradorPage() {
           <div className="mt-5 space-y-4">
             <div className="overflow-hidden rounded-4xl border border-navy-800/10 bg-gradient-to-br from-navy-800 to-navy-950 p-6 text-white shadow-card">
               <div className="flex items-center gap-4">
-                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gold-400/15 text-2xl">
-                  🔐
-                </span>
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gold-400/15 text-2xl">🔐</span>
                 <div>
                   <h2 className="font-serif text-xl font-black">Seguridad del panel</h2>
-                  <p className="mt-0.5 text-[13px] text-white/60">
-                    Sesión iniciada como <span className="font-bold text-gold-200">{meUser || "…"}</span>
-                  </p>
+                  <p className="mt-0.5 text-[13px] text-white/60">Sesión: <span className="font-bold text-gold-200">{meUser || "…"}</span></p>
                 </div>
               </div>
               <ul className="mt-4 space-y-2 text-[13.5px] leading-relaxed text-white/75">
-                <li className="flex gap-2.5">
-                  <span aria-hidden className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-gold-400" />
-                  <span>Para cambiar el usuario o la contraseña primero escriba las <b>actuales</b>. Sin ellas no se guarda nada.</span>
-                </li>
-                <li className="flex gap-2.5">
-                  <span aria-hidden className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-gold-400" />
-                  <span>El cambio se activa solo en 1-2 minutos; después vuelva a entrar con sus datos nuevos.</span>
-                </li>
+                <li className="flex gap-2.5"><span aria-hidden className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-gold-400" /><span>Para cambiar el usuario o la contraseña primero escriba las <b>actuales</b>.</span></li>
+                <li className="flex gap-2.5"><span aria-hidden className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-gold-400" /><span>El cambio se activa en 1-2 minutos; después entre con sus datos nuevos.</span></li>
               </ul>
             </div>
 
             {secDone && (
               <div className="rounded-4xl border border-green-200 bg-green-50 p-5">
                 <p className="font-bold text-green-800">✓ {secDone}</p>
-                <button
-                  onClick={async () => {
-                    await logout();
-                    window.location.reload();
-                  }}
-                  className="btn-primary mt-4 w-full !py-3.5"
-                >
-                  Entendido, volver a entrar
-                </button>
+                <button onClick={async () => { await logout(); window.location.reload(); }} className="btn-primary mt-4 w-full !py-3.5">Entendido, volver a entrar</button>
               </div>
             )}
 
@@ -818,94 +758,33 @@ export default function AdministradorPage() {
                 <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div>
                     <label className="label" htmlFor="sec-cur-user">Usuario actual</label>
-                    <input
-                      id="sec-cur-user"
-                      className="field"
-                      value={secCurUser}
-                      onChange={(e) => setSecCurUser(e.target.value)}
-                      placeholder="Su usuario actual"
-                      autoComplete="off"
-                      autoCapitalize="none"
-                      autoCorrect="off"
-                      spellCheck={false}
-                      required
-                    />
+                    <input id="sec-cur-user" className="field" value={secCurUser} onChange={(e) => setSecCurUser(e.target.value)} placeholder="Su usuario actual" autoComplete="off" autoCapitalize="none" autoCorrect="off" spellCheck={false} required />
                   </div>
                   <div>
                     <label className="label" htmlFor="sec-cur-pass">Contraseña actual</label>
                     <div className="relative">
-                      <input
-                        id="sec-cur-pass"
-                        className="field pr-12"
-                        type={secShowCur ? "text" : "password"}
-                        value={secCurPass}
-                        onChange={(e) => setSecCurPass(e.target.value)}
-                        placeholder="••••••••"
-                        autoComplete="new-password"
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setSecShowCur(!secShowCur)}
-                        className="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full text-lg text-navy-800/50 active:scale-95"
-                        aria-label={secShowCur ? "Ocultar contraseña" : "Mostrar contraseña"}
-                      >
-                        {secShowCur ? "🙈" : "👁️"}
-                      </button>
+                      <input id="sec-cur-pass" className="field pr-12" type={secShowCur ? "text" : "password"} value={secCurPass} onChange={(e) => setSecCurPass(e.target.value)} placeholder="••••••••" autoComplete="new-password" required />
+                      <button type="button" onClick={() => setSecShowCur(!secShowCur)} className="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full text-lg text-navy-800/50 active:scale-95" aria-label={secShowCur ? "Ocultar" : "Mostrar"}>{secShowCur ? "🙈" : "👁️"}</button>
                     </div>
                   </div>
                 </div>
 
                 <h3 className="mt-6 font-serif text-lg font-bold text-navy-900">2 · Datos nuevos</h3>
                 <label className="label mt-3" htmlFor="sec-new-user">Nuevo usuario</label>
-                <input
-                  id="sec-new-user"
-                  className="field"
-                  value={secNewUser}
-                  onChange={(e) => setSecNewUser(e.target.value.toLowerCase())}
-                  placeholder="Vacío = conservar el actual"
-                  autoComplete="off"
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  maxLength={40}
-                />
+                <input id="sec-new-user" className="field" value={secNewUser} onChange={(e) => setSecNewUser(e.target.value.toLowerCase())} placeholder="Vacío = conservar el actual" autoComplete="off" autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={40} />
                 <p className="hint">Si solo cambia la contraseña, deje este campo vacío.</p>
 
                 <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div>
                     <label className="label" htmlFor="sec-new-pass">Nueva contraseña</label>
                     <div className="relative">
-                      <input
-                        id="sec-new-pass"
-                        className="field pr-12"
-                        type={secShowNew ? "text" : "password"}
-                        value={secNewPass}
-                        onChange={(e) => setSecNewPass(e.target.value)}
-                        placeholder="Mínimo 8 caracteres"
-                        autoComplete="new-password"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setSecShowNew(!secShowNew)}
-                        className="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full text-lg text-navy-800/50 active:scale-95"
-                        aria-label={secShowNew ? "Ocultar contraseña" : "Mostrar contraseña"}
-                      >
-                        {secShowNew ? "🙈" : "👁️"}
-                      </button>
+                      <input id="sec-new-pass" className="field pr-12" type={secShowNew ? "text" : "password"} value={secNewPass} onChange={(e) => setSecNewPass(e.target.value)} placeholder="Mínimo 8 caracteres" autoComplete="new-password" />
+                      <button type="button" onClick={() => setSecShowNew(!secShowNew)} className="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full text-lg text-navy-800/50 active:scale-95" aria-label={secShowNew ? "Ocultar" : "Mostrar"}>{secShowNew ? "🙈" : "👁️"}</button>
                     </div>
                   </div>
                   <div>
                     <label className="label" htmlFor="sec-confirm">Confirmar contraseña</label>
-                    <input
-                      id="sec-confirm"
-                      className="field"
-                      type={secShowNew ? "text" : "password"}
-                      value={secConfirm}
-                      onChange={(e) => setSecConfirm(e.target.value)}
-                      placeholder="Repítala igual"
-                      autoComplete="new-password"
-                    />
+                    <input id="sec-confirm" className="field" type={secShowNew ? "text" : "password"} value={secConfirm} onChange={(e) => setSecConfirm(e.target.value)} placeholder="Repítala igual" autoComplete="new-password" />
                   </div>
                 </div>
                 <p className="hint">Si solo cambia el usuario, deje la contraseña nueva vacía.</p>

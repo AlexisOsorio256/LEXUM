@@ -39,7 +39,7 @@ export default function Hero({ settings }: Props) {
           </p>
           <h1 className="hero-enter hero-enter-1 mt-6 font-serif text-[clamp(2.6rem,8vw,4.6rem)] font-black leading-[1.02] drop-shadow-lg">
             Defendiendo tus derechos{" "}
-            <em className="bg-gradient-to-r from-gold-200 via-gold-400 to-gold-200 bg-clip-text text-transparent">
+            <em className="gold-shimmer">
               con experiencia
             </em>{" "}
             y compromiso
@@ -50,12 +50,13 @@ export default function Hero({ settings }: Props) {
             abogados cedulados en materia Civil, Familiar, Penal, Agraria,
             Mercantil, Amparo y Notarial.
           </p>
-          <div className="hero-enter hero-enter-3 mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="hero-enter hero-enter-3 mt-8">
             <a href="#agendar" className="btn-gold w-full sm:w-auto">
               Agendar cita
             </a>
           </div>
-          <p className="hero-enter hero-enter-3 mt-6 text-[13px] font-medium tracking-wide text-white/55">
+          <p className="hero-enter hero-enter-3 mt-4 inline-flex items-center gap-2 text-[13px] font-semibold text-white/65">
+            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-gold-400" />
             {settings.hours}
           </p>
         </div>

@@ -72,8 +72,10 @@ export default function Areas({ areas, consultas }: Props) {
   }
 
   return (
-    <section id="areas" className="mx-auto max-w-6xl px-4 py-14 md:py-20 lg:px-8">
-      <div className="reveal mx-auto max-w-2xl text-center">
+    <section id="areas" className="relative overflow-hidden bg-paper">
+      <div aria-hidden className="pointer-events-none absolute left-0 top-0 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/3 rounded-full bg-gold-400/10 blur-3xl" />
+      <div className="relative mx-auto max-w-6xl px-4 py-14 md:py-20 lg:px-8">
+        <div className="reveal mx-auto max-w-2xl text-center">
         <p className="eyebrow mx-auto">
           <span className="h-1.5 w-1.5 rounded-full bg-gold-500" />
           Áreas de práctica
@@ -111,7 +113,7 @@ export default function Areas({ areas, consultas }: Props) {
               <a
                 href="#agendar"
                 onClick={() => contar(a.slug, a.name)}
-                className="inline-flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-full bg-navy-800 px-5 text-[15px] font-semibold text-white transition hover:bg-navy-700 active:scale-[0.98]"
+                className="inline-flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-full bg-navy-800 px-5 text-[15px] font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:bg-navy-700 active:translate-y-0 active:scale-[0.98]"
               >
                 Consultar esta área
               </a>
@@ -123,6 +125,7 @@ export default function Areas({ areas, consultas }: Props) {
             )}
           </article>
         ))}
+      </div>
       </div>
     </section>
   );
