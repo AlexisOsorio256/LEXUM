@@ -33,7 +33,7 @@ export default async function Home() {
     <main>
       <VisitTracker />
       <Reveal />
-      <Navbar waNumber={settings.whatsapp_number} phoneDisplay={settings.phone_display} />
+      <Navbar />
       <Hero settings={settings} />
       <Contacto settings={settings} />
       <Areas areas={areas} consultas={metrics.likes} />
