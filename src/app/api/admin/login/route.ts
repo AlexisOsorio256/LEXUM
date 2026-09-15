@@ -1,22 +1,17 @@
 import { NextResponse } from "next/server";
-import { checkLogin, createSession, COOKIE_NAME } from "@/lib/adminAuth";
+import { loginUser, createSession, COOKIE_NAME } from "@/lib/adminAuth";
 
 export async function POST(req: Request) {
-  if (!process.env.ADMIN_PASSWORD) {
-    return NextResponse.json(
-      { error: "Panel aún no configurado. Avise al administrador." },
-      { status: 503 }
-    );
-  }
   const { user, password } = await req.json().catch(() => ({}));
-  if (!checkLogin(String(user ?? ""), String(password ?? ""))) {
+  const canonical = loginUser(String(user ?? ""), String(password ?? ""));
+  if (!canonical) {
     return NextResponse.json(
       { error: "Usuario o contraseña incorrectos." },
       { status: 401 }
     );
   }
-  const session = createSession();
-  const res = NextResponse.json({ ok: true });
+  const session = createSession(canonical);
+  const res = NextResponse.json({ ok: true, user: canonical });
   res.cookies.set(COOKIE_NAME, session.value, {
     httpOnly: true,
     sameSite: "lax",

@@ -53,15 +53,34 @@ export default function AdministradorPage() {
   const [abogados, setAbogados] = useState<Abogado[]>([]);
   const [settings, setSettings] = useState<Settings | null>(null);
   const [metrics, setMetrics] = useState<Metrics | null>(null);
-  const [tab, setTab] = useState<"resumen" | "areas" | "equipo" | "datos" | "fotos">("resumen");
+  const [tab, setTab] = useState<"resumen" | "areas" | "equipo" | "datos" | "fotos" | "seguridad">("resumen");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [editingArea, setEditingArea] = useState<Area | null>(null);
   const [editingAbogado, setEditingAbogado] = useState<Abogado | null>(null);
+  const [meUser, setMeUser] = useState("");
+  const [secCurUser, setSecCurUser] = useState("");
+  const [secCurPass, setSecCurPass] = useState("");
+  const [secNewUser, setSecNewUser] = useState("");
+  const [secNewPass, setSecNewPass] = useState("");
+  const [secConfirm, setSecConfirm] = useState("");
+  const [secShowCur, setSecShowCur] = useState(false);
+  const [secShowNew, setSecShowNew] = useState(false);
+  const [secSaving, setSecSaving] = useState(false);
+  const [secDone, setSecDone] = useState("");
 
   useEffect(() => {
     fetch("/api/admin/me")
-      .then((r) => setLogged(r.ok))
+      .then(async (r) => {
+        setLogged(r.ok);
+        if (r.ok) {
+          const d = await r.json().catch(() => ({}));
+          if (d.user) {
+            setMeUser(String(d.user));
+            setSecNewUser(String(d.user));
+          }
+        }
+      })
       .catch(() => setLogged(false))
       .finally(() => setChecking(false));
   }, []);
@@ -106,11 +125,53 @@ export default function AdministradorPage() {
     }
     setPassword("");
     setLogged(true);
+    if (d.user) {
+      setMeUser(String(d.user));
+      setSecNewUser(String(d.user));
+    }
   }
 
   async function logout() {
     await fetch("/api/admin/me", { method: "POST" });
     setLogged(false);
+  }
+
+  async function changeCredentials(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setOk("");
+    setSecDone("");
+    if (!secCurUser.trim() || !secCurPass) {
+      setError("Escriba su usuario y contraseña actuales para autorizar el cambio.");
+      return;
+    }
+    if (secNewPass && secNewPass !== secConfirm) {
+      setError("La contraseña nueva y su confirmación no coinciden.");
+      return;
+    }
+    setSecSaving(true);
+    const r = await fetch("/api/admin/credenciales", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        currentUser: secCurUser,
+        currentPassword: secCurPass,
+        newUser: secNewUser,
+        newPassword: secNewPass,
+      }),
+    });
+    const d = await r.json().catch(() => ({}));
+    setSecSaving(false);
+    if (!r.ok) {
+      setError(d.error ?? "No se pudo actualizar.");
+      return;
+    }
+    setSecDone(
+      `Credenciales actualizadas. La página las activa solas en 1-2 minutos. Después vuelva a entrar con su ${secNewPass ? "nueva contraseña" : "nuevo usuario"}.`
+    );
+    setSecCurPass("");
+    setSecNewPass("");
+    setSecConfirm("");
   }
 
   async function persist(nextAreas: Area[], nextAbogados: Abogado[], nextSettings: Settings | null) {
@@ -262,6 +323,7 @@ export default function AdministradorPage() {
               ["equipo", "👥 Equipo"],
               ["datos", "⚙️ Datos"],
               ["fotos", "📷 Fotos"],
+              ["seguridad", "🔐 Seguridad"],
             ] as const
           ).map(([t, label]) => (
             <button
@@ -272,6 +334,7 @@ export default function AdministradorPage() {
                 setEditingAbogado(null);
                 setOk("");
                 setError("");
+                setSecDone("");
                 if (t === "resumen") loadMetrics();
               }}
               className={`shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold sm:px-5 ${tab === t ? "bg-navy-800 text-white" : "border border-navy-800/10 bg-white"}`}
@@ -548,6 +611,147 @@ export default function AdministradorPage() {
               />
             </label>
             <p className="hint">JPG o PNG, de preferencia menos de 3 MB. Funciona desde el celular.</p>
+          </div>
+        )}
+
+        {tab === "seguridad" && (
+          <div className="mt-5 space-y-4">
+            <div className="overflow-hidden rounded-4xl border border-navy-800/10 bg-gradient-to-br from-navy-800 to-navy-950 p-6 text-white shadow-card">
+              <div className="flex items-center gap-4">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gold-400/15 text-2xl">
+                  🔐
+                </span>
+                <div>
+                  <h2 className="font-serif text-xl font-black">Seguridad del panel</h2>
+                  <p className="mt-0.5 text-[13px] text-white/60">
+                    Sesión iniciada como <span className="font-bold text-gold-200">{meUser || "…"}</span>
+                  </p>
+                </div>
+              </div>
+              <ul className="mt-4 space-y-2 text-[13.5px] leading-relaxed text-white/75">
+                <li className="flex gap-2.5">
+                  <span aria-hidden className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-gold-400" />
+                  <span>Para cambiar el usuario o la contraseña primero escriba las <b>actuales</b>. Sin ellas no se guarda nada.</span>
+                </li>
+                <li className="flex gap-2.5">
+                  <span aria-hidden className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-gold-400" />
+                  <span>El cambio se activa solo en 1-2 minutos; después vuelva a entrar con sus datos nuevos.</span>
+                </li>
+              </ul>
+            </div>
+
+            {secDone && (
+              <div className="rounded-4xl border border-green-200 bg-green-50 p-5">
+                <p className="font-bold text-green-800">✓ {secDone}</p>
+                <button
+                  onClick={async () => {
+                    await logout();
+                    window.location.reload();
+                  }}
+                  className="btn-primary mt-4 w-full !py-3.5"
+                >
+                  Entendido, volver a entrar
+                </button>
+              </div>
+            )}
+
+            {!secDone && (
+              <form onSubmit={changeCredentials} className="card-admin">
+                <h3 className="font-serif text-lg font-bold text-navy-900">1 · Confirme que es usted</h3>
+                <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="label" htmlFor="sec-cur-user">Usuario actual</label>
+                    <input
+                      id="sec-cur-user"
+                      className="field"
+                      value={secCurUser}
+                      onChange={(e) => setSecCurUser(e.target.value)}
+                      placeholder={meUser || "Su usuario actual"}
+                      autoComplete="username"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="label" htmlFor="sec-cur-pass">Contraseña actual</label>
+                    <div className="relative">
+                      <input
+                        id="sec-cur-pass"
+                        className="field pr-12"
+                        type={secShowCur ? "text" : "password"}
+                        value={secCurPass}
+                        onChange={(e) => setSecCurPass(e.target.value)}
+                        placeholder="••••••••"
+                        autoComplete="current-password"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setSecShowCur(!secShowCur)}
+                        className="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full text-lg text-navy-800/50 active:scale-95"
+                        aria-label={secShowCur ? "Ocultar contraseña" : "Mostrar contraseña"}
+                      >
+                        {secShowCur ? "🙈" : "👁️"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <h3 className="mt-6 font-serif text-lg font-bold text-navy-900">2 · Datos nuevos</h3>
+                <label className="label mt-3" htmlFor="sec-new-user">Nuevo usuario</label>
+                <input
+                  id="sec-new-user"
+                  className="field"
+                  value={secNewUser}
+                  onChange={(e) => setSecNewUser(e.target.value.toLowerCase())}
+                  placeholder="Ej: admin2026@"
+                  autoComplete="off"
+                  maxLength={40}
+                />
+                <p className="hint">Si solo cambia la contraseña, deje aquí su usuario actual.</p>
+
+                <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="label" htmlFor="sec-new-pass">Nueva contraseña</label>
+                    <div className="relative">
+                      <input
+                        id="sec-new-pass"
+                        className="field pr-12"
+                        type={secShowNew ? "text" : "password"}
+                        value={secNewPass}
+                        onChange={(e) => setSecNewPass(e.target.value)}
+                        placeholder="Mínimo 8 caracteres"
+                        autoComplete="new-password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setSecShowNew(!secShowNew)}
+                        className="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full text-lg text-navy-800/50 active:scale-95"
+                        aria-label={secShowNew ? "Ocultar contraseña" : "Mostrar contraseña"}
+                      >
+                        {secShowNew ? "🙈" : "👁️"}
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="label" htmlFor="sec-confirm">Confirmar contraseña</label>
+                    <input
+                      id="sec-confirm"
+                      className="field"
+                      type={secShowNew ? "text" : "password"}
+                      value={secConfirm}
+                      onChange={(e) => setSecConfirm(e.target.value)}
+                      placeholder="Repítala igual"
+                      autoComplete="new-password"
+                    />
+                  </div>
+                </div>
+                <p className="hint">Si solo cambia el usuario, deje la contraseña nueva vacía.</p>
+
+                <button disabled={secSaving} type="submit" className="btn-primary mt-5 w-full !py-4">
+                  {secSaving ? "Guardando…" : "🔐 Actualizar credenciales"}
+                </button>
+              </form>
+            )}
           </div>
         )}
       </div>
