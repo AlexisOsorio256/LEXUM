@@ -200,7 +200,7 @@ export default function AdministradorPage() {
             className="field"
             value={user}
             onChange={(e) => setUser(e.target.value)}
-            placeholder="lexum"
+            placeholder="ADMIN2026@"
             autoComplete="username"
             required
           />

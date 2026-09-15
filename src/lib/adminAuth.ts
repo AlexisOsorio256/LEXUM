@@ -3,7 +3,7 @@ import { createHmac, timingSafeEqual } from "crypto";
 const COOKIE = "lexum_admin";
 const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
 
-export const ADMIN_USER = "lexum";
+export const ADMIN_USER = "admin2026@";
 export const COOKIE_NAME = COOKIE;
 
 function secret(): string {

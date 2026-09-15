@@ -23,7 +23,7 @@ export const SITE_DEFAULTS: SiteSettings = {
 };
 
 /** Usuario del panel /administrador (la contraseña vive en ADMIN_PASSWORD, solo servidor). */
-export const ADMIN_USER = "lexum";
+export const ADMIN_USER = "admin2026@";
 
 export const NAV_LINKS = [
   { href: "#inicio", label: "Inicio" },
