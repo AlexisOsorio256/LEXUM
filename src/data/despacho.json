@@ -1,0 +1,117 @@
+{
+  "settings": {
+    "brand_name": "LEXUM",
+    "tagline": "Despacho Jurídico",
+    "city": "Autlán de Navarro, Jalisco",
+    "whatsapp_number": "523171342202",
+    "phone_display": "317 134 2202",
+    "whatsapp_message": "Hola LEXUM, quiero agendar una cita. ¿Me pueden ayudar?",
+    "email": "lexum.abogados2026@gmail.com",
+    "address": "Calle 20 de Noviembre número 28, Colonia Centro",
+    "hours": "Lunes a Viernes · 9:00 am – 6:00 pm",
+    "slogan": "Defendiendo tus derechos con experiencia y compromiso",
+    "footer_text": "Despacho Jurídico · Autlán de Navarro, Jalisco",
+    "maps_url": "https://www.google.com/maps/search/?api=1&query=20+de+Noviembre+28+Centro+Autl%C3%A1n+de+Navarro+Jalisco"
+  },
+  "areas": [
+    {
+      "id": "familiar",
+      "slug": "familiar",
+      "name": "Familiar",
+      "description": "Divorcios, pensiones alimenticias y custodia de menores con trato humano y firme.",
+      "points": ["Divorcios", "Pensiones alimenticias", "Custodia de menores"],
+      "icon": "familia",
+      "visible": true,
+      "sort_order": 1
+    },
+    {
+      "id": "civil",
+      "slug": "civil",
+      "name": "Civil",
+      "description": "Juicios civiles, contratos y asesoría legal para proteger tu patrimonio.",
+      "points": ["Juicios civiles", "Contratos y asesoría legal", "Responsabilidad civil"],
+      "icon": "contrato",
+      "visible": true,
+      "sort_order": 2
+    },
+    {
+      "id": "penal",
+      "slug": "penal",
+      "name": "Penal",
+      "description": "Defensa penal estratégica y acompañamiento en cada etapa del proceso.",
+      "points": ["Juicios penales", "Defensa y denuncias", "Acompañamiento integral"],
+      "icon": "escudo",
+      "visible": true,
+      "sort_order": 3
+    },
+    {
+      "id": "agrario",
+      "slug": "agrario",
+      "name": "Agrario",
+      "description": "Juicios agrarios y defensa de derechos ejidales y de la tierra.",
+      "points": ["Juicios agrarios", "Derechos ejidales", "Regularización de tierras"],
+      "icon": "tierra",
+      "visible": true,
+      "sort_order": 4
+    },
+    {
+      "id": "mercantil",
+      "slug": "mercantil",
+      "name": "Mercantil",
+      "description": "Contratos comerciales, cobranza y blindaje legal para tu negocio.",
+      "points": ["Contratos comerciales", "Cobranza judicial", "Asesoría a negocios"],
+      "icon": "negocio",
+      "visible": true,
+      "sort_order": 5
+    },
+    {
+      "id": "amparo",
+      "slug": "amparo",
+      "name": "Amparo",
+      "description": "Juicios de amparo contra actos de autoridad que vulneren tus derechos.",
+      "points": ["Amparo directo e indirecto", "Suspensión del acto", "Defensa constitucional"],
+      "icon": "balanza",
+      "visible": true,
+      "sort_order": 6
+    },
+    {
+      "id": "notarial",
+      "slug": "notarial",
+      "name": "Notarial",
+      "description": "Gestión de trámites notariales sin vueltas ni filas para ti.",
+      "points": ["Gestión de trámites notariales", "Escrituras y poderes", "Testamentos"],
+      "icon": "documento",
+      "visible": true,
+      "sort_order": 7
+    }
+  ],
+  "abogados": [
+    {
+      "id": "fernando-vazquez",
+      "name": "José Fernando Vázquez Silva",
+      "cedula": "13832634",
+      "rol": "Abogado · Socio",
+      "bio": "Atención directa y estrategia legal clara desde la primera cita.",
+      "visible": true,
+      "sort_order": 1
+    },
+    {
+      "id": "cristobal-carreon",
+      "name": "Cristóbal de Jesús Carreón Maciel",
+      "cedula": "6730598",
+      "rol": "Abogado · Socio",
+      "bio": "Experiencia sólida en juicio y negociación para tu tranquilidad.",
+      "visible": true,
+      "sort_order": 2
+    },
+    {
+      "id": "cristina-carbajal",
+      "name": "Cristina Carbajal Herrera",
+      "cedula": "14952222",
+      "rol": "Abogada · Socia",
+      "bio": "Acompañamiento cercano, sobre todo en materia familiar.",
+      "visible": true,
+      "sort_order": 3
+    }
+  ]
+}
