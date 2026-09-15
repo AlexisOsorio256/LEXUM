@@ -2,17 +2,14 @@
 
 import { useState } from "react";
 import type { Area } from "@/lib/types";
-import { citaLink, telLink, mailLink } from "@/lib/whatsapp";
+import { citaLink } from "@/lib/whatsapp";
 
 type Props = {
   areas: Area[];
   waNumber: string;
-  email: string;
-  phoneDisplay: string;
 };
 
-/** Agendar cita: formulario corto que abre WhatsApp con el mensaje armado. 100% móvil. */
-export default function Agendar({ areas, waNumber, email, phoneDisplay }: Props) {
+export default function Agendar({ areas, waNumber }: Props) {
   const [nombre, setNombre] = useState("");
   const [area, setArea] = useState("");
   const [mensaje, setMensaje] = useState("");
@@ -61,14 +58,6 @@ export default function Agendar({ areas, waNumber, email, phoneDisplay }: Props)
               </li>
             ))}
           </ol>
-          <div className="mt-6 flex flex-col gap-2.5 sm:flex-row">
-            <a href={telLink(waNumber)} className="btn-ghost flex-1">
-              Llamar {phoneDisplay}
-            </a>
-            <a href={mailLink(email)} className="btn-ghost flex-1">
-              Escribir correo
-            </a>
-          </div>
         </div>
 
         <form onSubmit={agendar} className="reveal card p-6 md:p-8" style={{ ["--reveal-delay" as string]: "120ms" }}>

@@ -57,6 +57,11 @@ export default function AdministradorPage() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [editingArea, setEditingArea] = useState<Area | null>(null);
+  const [showNewArea, setShowNewArea] = useState(false);
+  const [newAreaName, setNewAreaName] = useState("");
+  const [newAreaDesc, setNewAreaDesc] = useState("");
+  const [newAreaPoints, setNewAreaPoints] = useState("");
+  const [newAreaIcon, setNewAreaIcon] = useState("balanza");
   const [editingAbogado, setEditingAbogado] = useState<Abogado | null>(null);
   const [meUser, setMeUser] = useState("");
   const [secCurUser, setSecCurUser] = useState("");
@@ -75,10 +80,7 @@ export default function AdministradorPage() {
         setLogged(r.ok);
         if (r.ok) {
           const d = await r.json().catch(() => ({}));
-          if (d.user) {
-            setMeUser(String(d.user));
-            setSecNewUser(String(d.user));
-          }
+          if (d.user) setMeUser(String(d.user));
         }
       })
       .catch(() => setLogged(false))
@@ -125,10 +127,7 @@ export default function AdministradorPage() {
     }
     setPassword("");
     setLogged(true);
-    if (d.user) {
-      setMeUser(String(d.user));
-      setSecNewUser(String(d.user));
-    }
+    if (d.user) setMeUser(String(d.user));
   }
 
   async function logout() {
@@ -190,6 +189,73 @@ export default function AdministradorPage() {
     if (data.settings) setSettings(data.settings);
   }
 
+  const slugify = (s: string) =>
+    s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+  async function toggleAreaVisible(a: Area) {
+    const next = areas.map((x) => (x.id === a.id ? { ...x, visible: !x.visible } : x));
+    setAreas(next);
+    setError("");
+    setOk("");
+    const { ok, data } = await persist(next, abogados, settings);
+    if (!ok) {
+      setAreas(areas);
+      setError(data.error ?? "No se pudo guardar");
+      return;
+    }
+    applySaved(data);
+    setOk("Actualizado. Se publica en 1-2 minutos.");
+  }
+
+  async function createArea() {
+    if (!newAreaName.trim()) {
+      setError("Escriba el nombre del área.");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    setOk("");
+    const slug = slugify(newAreaName) || `area-${Date.now()}`;
+    const next: Area = {
+      id: slug,
+      slug,
+      name: newAreaName.trim(),
+      description: newAreaDesc.trim(),
+      points: newAreaPoints.split("\n").map((s) => s.trim()).filter(Boolean).slice(0, 6),
+      icon: newAreaIcon,
+      visible: true,
+      sort_order: areas.length,
+    };
+    const list = [...areas, next];
+    const { ok, data } = await persist(list, abogados, settings);
+    setSaving(false);
+    if (!ok) {
+      setError(data.error ?? "No se pudo guardar");
+      return;
+    }
+    applySaved(data);
+    setNewAreaName("");
+    setNewAreaDesc("");
+    setNewAreaPoints("");
+    setShowNewArea(false);
+    setOk("Área agregada. Se publica en 1-2 minutos.");
+  }
+
+  async function toggleAbogadoVisible(b: Abogado) {
+    const next = abogados.map((x) => (x.id === b.id ? { ...x, visible: !x.visible } : x));
+    setAbogados(next);
+    setError("");
+    setOk("");
+    const { ok, data } = await persist(areas, next, settings);
+    if (!ok) {
+      setAbogados(abogados);
+      setError(data.error ?? "No se pudo guardar");
+      return;
+    }
+    applySaved(data);
+    setOk("Actualizado. Se publica en 1-2 minutos.");
+  }
+
   async function saveAll(msg = "Guardado. La página se actualiza sola en 1-2 minutos.") {
     if (!settings) return;
     setSaving(true);
@@ -248,6 +314,7 @@ export default function AdministradorPage() {
         <form
           onSubmit={login}
           className="mx-auto mt-14 max-w-sm rounded-4xl border border-navy-800/10 bg-white p-8 shadow-card"
+          autoComplete="off"
         >
           <p className="text-center text-3xl">⚖️</p>
           <h1 className="mt-2 text-center font-serif text-2xl font-black text-navy-900">
@@ -256,23 +323,28 @@ export default function AdministradorPage() {
           <p className="mt-1 text-center text-xs font-semibold uppercase tracking-[0.2em] text-navy-800/45">
             🔒 Acceso restringido
           </p>
-          <label className="label mt-5">Usuario</label>
+          <label className="label mt-5" htmlFor="adm-user">Usuario</label>
           <input
+            id="adm-user"
             className="field"
             value={user}
             onChange={(e) => setUser(e.target.value)}
-            placeholder="ADMIN2026@"
-            autoComplete="username"
+            placeholder="Su usuario"
+            autoComplete="off"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             required
           />
-          <label className="label mt-4">Contraseña</label>
+          <label className="label mt-4" htmlFor="adm-pass">Contraseña</label>
           <input
+            id="adm-pass"
             className="field"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Tu contraseña"
-            autoComplete="current-password"
+            placeholder="Su contraseña"
+            autoComplete="new-password"
             required
           />
           {error && <p className="mt-3 text-center text-sm font-medium text-red-600">{error}</p>}
@@ -400,6 +472,39 @@ export default function AdministradorPage() {
                 👀 Visitas = veces que abrieron la página. 💬 Consultas = toques en “Consultar por WhatsApp” por área.
               </p>
             </div>
+
+            <div className="card-admin mt-4">
+              <h2 className="font-serif text-lg font-bold text-navy-900">Accesos rápidos</h2>
+              <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+                <button onClick={() => setTab("areas")} className="rounded-2xl bg-navy-800 px-4 py-3.5 text-sm font-bold text-white transition active:scale-[0.98]">
+                  ⚖️ Editar áreas
+                </button>
+                <button onClick={() => setTab("equipo")} className="rounded-2xl bg-navy-800 px-4 py-3.5 text-sm font-bold text-white transition active:scale-[0.98]">
+                  👥 Editar equipo
+                </button>
+                <button onClick={() => setTab("datos")} className="rounded-2xl border border-navy-800/15 bg-white px-4 py-3.5 text-sm font-bold text-navy-900 transition active:scale-[0.98]">
+                  ⚙️ Cambiar datos
+                </button>
+              </div>
+            </div>
+
+            <div className="card-admin mt-4">
+              <h2 className="font-serif text-lg font-bold text-navy-900">¿Cómo se publica un cambio?</h2>
+              <ol className="mt-3 space-y-2.5 text-[14px] leading-relaxed text-ink/70">
+                <li className="flex gap-3">
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-navy-800 text-[13px] font-black text-gold-300">1</span>
+                  <span>Edite lo necesario y toque <b>Guardar</b>.</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-navy-800 text-[13px] font-black text-gold-300">2</span>
+                  <span>Espere 1-2 minutos sin tocar nada más.</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-navy-800 text-[13px] font-black text-gold-300">3</span>
+                  <span>Abra la página en su celular y compruebe el cambio.</span>
+                </li>
+              </ol>
+            </div>
           </div>
         )}
 
@@ -416,14 +521,59 @@ export default function AdministradorPage() {
                     {a.points.slice(0, 2).join(" · ")} · {a.visible ? "Visible" : "Oculta"}
                   </p>
                 </div>
-                <button onClick={() => setEditingArea({ ...a })} className="shrink-0 rounded-full bg-navy-800 px-4 py-2 text-sm font-semibold text-white">
+                <button
+                  onClick={() => toggleAreaVisible(a)}
+                  className={`shrink-0 rounded-full px-3 py-2 text-[13px] font-bold ${a.visible ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-500"}`}
+                  aria-label={a.visible ? `Ocultar ${a.name}` : `Mostrar ${a.name}`}
+                >
+                  {a.visible ? "Visible" : "Oculta"}
+                </button>
+                <button onClick={() => { setEditingArea({ ...a }); setShowNewArea(false); }} className="shrink-0 rounded-full bg-navy-800 px-4 py-2 text-sm font-semibold text-white">
                   Editar
                 </button>
               </div>
             ))}
-            <p className="rounded-3xl border border-navy-800/10 bg-white p-4 text-[13px] leading-relaxed text-ink/60">
-              Para agregar u ocultar un área, edite el nombre y marque visible/no visible. Las áreas nuevas se crean desde el código para no romper el diseño.
-            </p>
+            {!showNewArea ? (
+              <button onClick={() => { setShowNewArea(true); setError(""); setOk(""); }} className="w-full rounded-3xl border-2 border-dashed border-navy-800/20 p-5 font-bold text-navy-800">
+                + Agregar área
+              </button>
+            ) : (
+              <div className="card-admin">
+                <h2 className="font-serif text-xl font-bold text-navy-900">Nueva área</h2>
+                <label className="label mt-4">Nombre</label>
+                <input className="field" value={newAreaName} onChange={(e) => setNewAreaName(e.target.value)} autoComplete="off" maxLength={40} />
+                <label className="label mt-4">Descripción corta</label>
+                <textarea className="field min-h-20" value={newAreaDesc} onChange={(e) => setNewAreaDesc(e.target.value)} maxLength={160} />
+                <label className="label mt-4">Puntos (uno por línea, máx 6)</label>
+                <textarea
+                  className="field min-h-24"
+                  value={newAreaPoints}
+                  onChange={(e) => setNewAreaPoints(e.target.value)}
+                  placeholder={"Un punto por línea"}
+                />
+                <label className="label mt-4">Icono</label>
+                <div className="flex flex-wrap gap-2">
+                  {ICONS.map((ic) => (
+                    <button
+                      key={ic}
+                      type="button"
+                      onClick={() => setNewAreaIcon(ic)}
+                      className={`rounded-full px-4 py-2 text-sm font-semibold ${newAreaIcon === ic ? "bg-navy-800 text-white" : "border border-navy-800/15 bg-white"}`}
+                    >
+                      {ic}
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-5 flex gap-3">
+                  <button disabled={saving} onClick={createArea} className="btn-primary flex-1 !py-3.5">
+                    {saving ? "Guardando…" : "Guardar área"}
+                  </button>
+                  <button type="button" onClick={() => setShowNewArea(false)} className="btn-ghost">
+                    Atrás
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -503,6 +653,13 @@ export default function AdministradorPage() {
                   <p className="truncate font-semibold text-navy-900">{b.name}</p>
                   <p className="truncate text-xs text-ink/55">Céd. {b.cedula} · {b.rol}</p>
                 </div>
+                <button
+                  onClick={() => toggleAbogadoVisible(b)}
+                  className={`shrink-0 rounded-full px-3 py-2 text-[13px] font-bold ${b.visible ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-500"}`}
+                  aria-label={b.visible ? `Ocultar a ${b.name}` : `Mostrar a ${b.name}`}
+                >
+                  {b.visible ? "Visible" : "Oculto"}
+                </button>
                 <button onClick={() => setEditingAbogado({ ...b })} className="shrink-0 rounded-full bg-navy-800 px-4 py-2 text-sm font-semibold text-white">
                   Editar
                 </button>
@@ -563,7 +720,7 @@ export default function AdministradorPage() {
             <h2 className="font-serif text-xl font-bold text-navy-900">Datos del despacho</h2>
             <label className="label mt-4">Número de WhatsApp (con código país, sin + ni espacios)</label>
             <input className="field" value={settings.whatsapp_number} onChange={(e) => setSettings({ ...settings, whatsapp_number: e.target.value.replace(/\D/g, "") })} inputMode="numeric" />
-            <p className="hint">Ej: 523171342202</p>
+            <p className="hint">Con código de país, sin + ni espacios.</p>
             <label className="label mt-4">Teléfono visible</label>
             <input className="field" value={settings.phone_display} onChange={(e) => setSettings({ ...settings, phone_display: e.target.value })} />
             <label className="label mt-4">Mensaje inicial de WhatsApp</label>
@@ -656,7 +813,7 @@ export default function AdministradorPage() {
             )}
 
             {!secDone && (
-              <form onSubmit={changeCredentials} className="card-admin">
+              <form onSubmit={changeCredentials} className="card-admin" autoComplete="off">
                 <h3 className="font-serif text-lg font-bold text-navy-900">1 · Confirme que es usted</h3>
                 <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div>
@@ -666,8 +823,11 @@ export default function AdministradorPage() {
                       className="field"
                       value={secCurUser}
                       onChange={(e) => setSecCurUser(e.target.value)}
-                      placeholder={meUser || "Su usuario actual"}
-                      autoComplete="username"
+                      placeholder="Su usuario actual"
+                      autoComplete="off"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
                       required
                     />
                   </div>
@@ -681,7 +841,7 @@ export default function AdministradorPage() {
                         value={secCurPass}
                         onChange={(e) => setSecCurPass(e.target.value)}
                         placeholder="••••••••"
-                        autoComplete="current-password"
+                        autoComplete="new-password"
                         required
                       />
                       <button
@@ -703,11 +863,14 @@ export default function AdministradorPage() {
                   className="field"
                   value={secNewUser}
                   onChange={(e) => setSecNewUser(e.target.value.toLowerCase())}
-                  placeholder="Ej: admin2026@"
+                  placeholder="Vacío = conservar el actual"
                   autoComplete="off"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
                   maxLength={40}
                 />
-                <p className="hint">Si solo cambia la contraseña, deje aquí su usuario actual.</p>
+                <p className="hint">Si solo cambia la contraseña, deje este campo vacío.</p>
 
                 <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div>

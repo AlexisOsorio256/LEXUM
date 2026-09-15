@@ -36,30 +36,9 @@ export default async function Home() {
       />
       <Hero settings={settings} />
 
-      {/* Cinta de confianza: cédulas visibles sin duplicar equipo */}
-      <div className="border-b border-navy-800/10 bg-white">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-2 px-4 py-5 text-center md:flex-row md:justify-center md:gap-8 lg:px-8">
-          <p className="text-[13px] font-bold uppercase tracking-[0.18em] text-navy-800/50">
-            Respaldo profesional
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-[13.5px] font-semibold text-navy-900/75">
-            {abogados.map((b) => (
-              <span key={b.id}>
-                {b.name} · Céd. {b.cedula}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-
       <Areas areas={areas} waNumber={settings.whatsapp_number} consultas={metrics.likes} />
       <Equipo abogados={abogados} />
-      <Agendar
-        areas={areas}
-        waNumber={settings.whatsapp_number}
-        email={settings.email}
-        phoneDisplay={settings.phone_display}
-      />
+      <Agendar areas={areas} waNumber={settings.whatsapp_number} />
       <Contacto settings={settings} />
       <Footer settings={settings} />
       {/* espacio para que la barra fija móvil no tape el final */}
