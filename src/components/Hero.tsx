@@ -1,32 +1,27 @@
 "use client";
 
 import { buildWaLink, telLink } from "@/lib/whatsapp";
-import { BANNER_IMAGE } from "@/lib/site";
 import type { SiteSettings } from "@/lib/types";
 
 type Props = { settings: SiteSettings };
 
 /**
- * Hero minimalista: foto real de fondo con velo azul marino,
- * un solo mensaje, dos acciones. El detalle de servicios vive
- * únicamente en la sección Áreas (sin duplicar).
+ * Hero sobrio sin foto: azul marino elegante construido en código,
+ * un solo mensaje, dos acciones. El detalle vive en su sección.
  */
 export default function Hero({ settings }: Props) {
   return (
     <section id="inicio" className="relative overflow-hidden bg-navy-950 text-white">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={BANNER_IMAGE}
-        alt=""
-        aria-hidden
-        className="absolute inset-0 h-full w-full object-cover"
-        loading="eager"
-        onError={(e) => {
-          (e.target as HTMLImageElement).style.display = "none";
-        }}
-      />
-      <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-navy-950/85 via-navy-900/80 to-navy-950/95" />
-      <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold-400/60 to-transparent" />
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-b from-navy-950 via-navy-900 to-navy-950" />
+        <div className="absolute -top-24 left-1/2 h-[320px] w-[680px] -translate-x-1/2 rounded-full bg-gold-400/10 blur-3xl" />
+        <div className="absolute bottom-10 left-[6%] hidden opacity-20 lg:block">
+          <ScaleMark />
+        </div>
+        <div className="absolute bottom-10 right-[6%] hidden opacity-20 lg:block">
+          <ScaleMark />
+        </div>
+      </div>
 
       <div className="relative mx-auto max-w-6xl px-4 pb-16 pt-28 md:pb-24 md:pt-40 lg:px-8">
         <div className="max-w-2xl">
@@ -69,6 +64,15 @@ export default function Hero({ settings }: Props) {
         </div>
       </div>
     </section>
+  );
+}
+
+function ScaleMark() {
+  return (
+    <svg width="120" height="160" viewBox="0 0 24 32" fill="none" stroke="#C9A227" strokeWidth="0.8" strokeLinecap="round" aria-hidden>
+      <path d="M12 3v24M5 7h14M5 7l-2.5 6a2.8 2.8 0 0 0 5 0L5 7ZM19 7l-2.5 6a2.8 2.8 0 0 0 5 0L19 7ZM8 27h8" />
+      <circle cx="12" cy="4.5" r="0.9" fill="#C9A227" />
+    </svg>
   );
 }
 
