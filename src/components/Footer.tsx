@@ -15,10 +15,7 @@ export default function Footer({ settings }: Props) {
           </span>
         </p>
         <p className="mt-4 text-xs text-white/35">
-          © {new Date().getFullYear()} {settings.brand_name} · {settings.city} ·{" "}
-          <a href="/administrador" className="transition hover:text-gold-300">
-            🔒 Administrador
-          </a>
+          © {new Date().getFullYear()} {settings.brand_name} · {settings.city}
         </p>
       </div>
     </footer>

@@ -40,7 +40,7 @@ type Settings = {
 
 type Metrics = { visits: number; likes: Record<string, number>; totalLikes: number };
 
-const ICONS = ["balanza", "familia", "contrato", "escudo", "tierra", "negocio", "documento"] as const;
+const ICONS = ["balanza"] as const;
 
 export default function AdministradorPage() {
   const [checking, setChecking] = useState(true);
@@ -53,14 +53,13 @@ export default function AdministradorPage() {
   const [abogados, setAbogados] = useState<Abogado[]>([]);
   const [settings, setSettings] = useState<Settings | null>(null);
   const [metrics, setMetrics] = useState<Metrics | null>(null);
-  const [tab, setTab] = useState<"resumen" | "areas" | "equipo" | "datos" | "seguridad">("resumen");
+  const [tab, setTab] = useState<"resumen" | "areas" | "equipo" | "seguridad">("resumen");
   const [saving, setSaving] = useState(false);
   const [editingArea, setEditingArea] = useState<Area | null>(null);
   const [showNewArea, setShowNewArea] = useState(false);
   const [newAreaName, setNewAreaName] = useState("");
   const [newAreaDesc, setNewAreaDesc] = useState("");
   const [newAreaPoints, setNewAreaPoints] = useState("");
-  const [newAreaIcon, setNewAreaIcon] = useState<string>("balanza");
   const [editingAbogado, setEditingAbogado] = useState<Abogado | null>(null);
   const [showNewAbogado, setShowNewAbogado] = useState(false);
   const [newAbName, setNewAbName] = useState("");
@@ -226,7 +225,7 @@ export default function AdministradorPage() {
       name: newAreaName.trim(),
       description: newAreaDesc.trim(),
       points: newAreaPoints.split("\n").map((s) => s.trim()).filter(Boolean).slice(0, 6),
-      icon: newAreaIcon,
+      icon: "balanza",
       visible: true,
       sort_order: areas.length,
     };
@@ -396,42 +395,33 @@ export default function AdministradorPage() {
     .sort((a, b) => b.count - a.count);
   const maxCount = Math.max(1, ...top.map((a) => a.count));
   const TAB_STYLE = (t: string) =>
-    `shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold transition ${
-      tab === t ? "bg-navy-800 text-white shadow-card" : "border border-navy-800/10 bg-white text-navy-800 hover:bg-navy-50"
+    `shrink-0 rounded-full px-3 py-1.5 text-[13px] font-semibold transition ${
+      tab === t ? "bg-navy-800 text-white" : "border border-transparent bg-white text-navy-800 hover:bg-navy-50"
     }`;
 
   return (
     <Shell>
       <div className="mx-auto max-w-3xl px-4 py-6 md:py-8">
         {/* Encabezado: oscuro con dorado, más visual sin texto largo */}
-        <div className="relative overflow-hidden rounded-[2rem] bg-navy-950 p-6 text-white shadow-float md:p-7">
-          <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_45%_at_50%_0%,#1E4A7A_0%,transparent_65%)]" />
-          <div aria-hidden className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gold-400/15 blur-2xl" />
-          <div className="relative flex items-start justify-between gap-3">
-            <div className="flex gap-4">
-              <span className="hidden h-12 w-12 shrink-0 place-items-center rounded-2xl bg-white/10 text-xl ring-1 ring-white/20 md:grid">⚖️</span>
-              <div>
-                <p className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-gold-200">
-                  🔒 Administrador
-                </p>
-                <h1 className="mt-2 font-serif text-[22px] font-black leading-tight md:text-[26px]">LEXUM · Panel</h1>
-                <p className="mt-1 text-xs text-white/60">{meUser || "Sesión activa"}</p>
-              </div>
+        <div className="relative overflow-hidden rounded-3xl bg-navy-950 p-4 text-white shadow-card md:p-5">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/10 text-base ring-1 ring-white/15">⚖️</span>
+              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gold-200">Administrador</p>
             </div>
-            <button className="shrink-0 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur transition hover:bg-white/20" onClick={logout}>
+            <button className="shrink-0 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold backdrop-blur transition hover:bg-white/20" onClick={logout}>
               Salir
             </button>
           </div>
         </div>
 
-        <div className="mt-5 overflow-hidden rounded-3xl border border-navy-800/10 bg-white p-1.5 shadow-sm">
-          <div className="flex gap-1.5 overflow-x-auto">
+        <div className="mt-4 overflow-hidden rounded-2xl border border-navy-800/10 bg-white p-1 shadow-sm">
+          <div className="flex gap-1 overflow-x-auto">
             {(
               [
                 ["resumen", "Resumen"],
                 ["areas", "Áreas"],
                 ["equipo", "Equipo"],
-                ["datos", "Datos"],
                 ["seguridad", "Seguridad"],
               ] as const
             ).map(([t, label]) => (
@@ -458,46 +448,46 @@ export default function AdministradorPage() {
         {ok && <p className="mt-4 rounded-2xl bg-green-50 p-4 text-sm font-medium text-green-700">{ok}</p>}
 
         {tab === "resumen" && (
-          <div className="mt-5 space-y-4">
-            <div className="grid grid-cols-3 gap-3">
-              <div className="card-admin text-center">
-                <p className="text-2xl">👀</p>
-                <p className="mt-1 font-serif text-2xl font-black text-navy-900 sm:text-3xl">
+          <div className="mt-4 space-y-3">
+            <div className="grid grid-cols-3 gap-2">
+              <div className="card-admin !p-3 text-center sm:!p-4">
+                <p className="text-lg">👀</p>
+                <p className="mt-0.5 font-serif text-xl font-black text-navy-900 sm:text-2xl">
                   {metrics ? metrics.visits.toLocaleString("es-MX") : "…"}
                 </p>
-                <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-ink/55">Visitas</p>
+                <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-ink/55">Visitas</p>
               </div>
-              <div className="card-admin text-center">
-                <p className="text-2xl">💬</p>
-                <p className="mt-1 font-serif text-2xl font-black text-navy-900 sm:text-3xl">
+              <div className="card-admin !p-3 text-center sm:!p-4">
+                <p className="text-lg">💬</p>
+                <p className="mt-0.5 font-serif text-xl font-black text-navy-900 sm:text-2xl">
                   {metrics ? metrics.totalLikes.toLocaleString("es-MX") : "…"}
                 </p>
-                <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-ink/55">Consultas</p>
+                <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-ink/55">Consultas</p>
               </div>
-              <div className="card-admin text-center">
-                <p className="text-2xl">⚖️</p>
-                <p className="mt-1 font-serif text-2xl font-black text-navy-900 sm:text-3xl">
+              <div className="card-admin !p-3 text-center sm:!p-4">
+                <p className="text-lg">⚖️</p>
+                <p className="mt-0.5 font-serif text-xl font-black text-navy-900 sm:text-2xl">
                   {areas.filter((a) => a.visible).length}
                 </p>
-                <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-ink/55">Áreas visibles</p>
+                <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-ink/55">Áreas</p>
               </div>
             </div>
 
-            <div className="card-admin">
+            <div className="card-admin !p-4">
               <div className="flex items-center justify-between gap-3">
-                <h2 className="font-serif text-lg font-bold text-navy-900">Lo más consultado</h2>
-                <button onClick={loadMetrics} className="rounded-full bg-navy-50 px-4 py-1.5 text-xs font-bold text-navy-800">
+                <h2 className="font-serif text-base font-bold text-navy-900">Lo más consultado</h2>
+                <button onClick={loadMetrics} className="rounded-full bg-navy-50 px-3 py-1 text-xs font-bold text-navy-800">
                   Actualizar
                 </button>
               </div>
-              <div className="mt-4 space-y-3">
+              <div className="mt-3 space-y-2.5">
                 {top.map((a) => (
                   <div key={a.id}>
-                    <div className="flex items-center justify-between gap-2 text-sm">
+                    <div className="flex items-center justify-between gap-2 text-[13px]">
                       <p className="truncate font-semibold text-navy-900">{a.name}</p>
-                      <p className="shrink-0 font-bold text-navy-800">{a.count}</p>
+                      <p className="shrink-0 text-xs font-bold text-navy-800">{a.count}</p>
                     </div>
-                    <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-navy-50">
+                    <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-navy-50">
                       <div
                         className="h-full rounded-full bg-gradient-to-r from-gold-400 to-navy-800 transition-all duration-700"
                         style={{ width: `${Math.round((a.count / maxCount) * 100)}%` }}
@@ -511,56 +501,48 @@ export default function AdministradorPage() {
         )}
 
         {tab === "areas" && !editingArea && (
-          <div className="mt-5 space-y-3">
+          <div className="mt-4 space-y-2">
             {areas.map((a) => (
-              <div key={a.id} className="flex items-center gap-3 rounded-3xl border border-navy-800/10 bg-white p-4 shadow-sm">
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-navy-800 text-sm font-black text-gold-300">
+              <div key={a.id} className="flex items-center gap-2 rounded-2xl border border-navy-800/10 bg-white px-3 py-3 shadow-sm">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-navy-800 text-xs font-black text-gold-300">
                   {a.name.slice(0, 2).toUpperCase()}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-semibold text-navy-900">{a.name}</p>
-                  <p className="truncate text-xs text-ink/55">{a.points.slice(0, 2).join(" · ")} · {a.visible ? "Visible" : "Oculta"}</p>
+                  <p className="truncate text-[14px] font-semibold text-navy-900">{a.name}</p>
+                  <p className="truncate text-[11px] text-ink/55">{a.visible ? "Visible" : "Oculta"} · {a.points.slice(0, 2).join(" · ")}</p>
                 </div>
                 <button
                   onClick={() => toggleAreaVisible(a)}
-                  className={`shrink-0 rounded-full px-3 py-2 text-[13px] font-bold ${a.visible ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-500"}`}
+                  className={`shrink-0 rounded-full px-2.5 py-1.5 text-xs font-bold ${a.visible ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-500"}`}
                 >
                   {a.visible ? "Visible" : "Oculta"}
                 </button>
-                <button onClick={() => { setEditingArea({ ...a }); setShowNewArea(false); }} className="shrink-0 rounded-full bg-navy-800 px-3.5 py-2 text-sm font-semibold text-white">
+                <button onClick={() => { setEditingArea({ ...a }); setShowNewArea(false); }} className="shrink-0 rounded-full bg-navy-800 px-2.5 py-1.5 text-xs font-semibold text-white">
                   Editar
                 </button>
-                <button onClick={() => deleteArea(a.id)} className="shrink-0 rounded-full bg-red-50 px-3 py-2 text-sm font-bold text-red-700">
+                <button onClick={() => deleteArea(a.id)} className="shrink-0 rounded-full bg-red-50 px-2.5 py-1.5 text-xs font-bold text-red-700">
                   Borrar
                 </button>
               </div>
             ))}
             {!showNewArea ? (
-              <button onClick={() => { setShowNewArea(true); setError(""); setOk(""); }} className="w-full rounded-3xl border-2 border-dashed border-navy-800/20 p-5 font-bold text-navy-800">
+              <button onClick={() => { setShowNewArea(true); setError(""); setOk(""); }} className="w-full rounded-2xl border-2 border-dashed border-navy-800/15 py-3 text-sm font-bold text-navy-800">
                 + Agregar área
               </button>
             ) : (
-              <div className="card-admin">
-                <h2 className="font-serif text-xl font-bold text-navy-900">Nueva área</h2>
-                <label className="label mt-4">Nombre</label>
-                <input className="field" value={newAreaName} onChange={(e) => setNewAreaName(e.target.value)} autoComplete="off" maxLength={40} />
-                <label className="label mt-4">Descripción</label>
-                <textarea className="field min-h-20" value={newAreaDesc} onChange={(e) => setNewAreaDesc(e.target.value)} maxLength={200} />
-                <label className="label mt-4">Puntos (uno por línea, máx 6)</label>
-                <textarea className="field min-h-24" value={newAreaPoints} onChange={(e) => setNewAreaPoints(e.target.value)} />
-                <label className="label mt-4">Icono</label>
-                <div className="flex flex-wrap gap-2">
-                  {ICONS.map((ic) => (
-                    <button key={ic} type="button" onClick={() => setNewAreaIcon(ic)} className={`rounded-full px-4 py-2 text-sm font-semibold ${newAreaIcon === ic ? "bg-navy-800 text-white" : "border border-navy-800/15 bg-white"}`}>
-                      {ic}
-                    </button>
-                  ))}
-                </div>
-                <div className="mt-5 flex gap-3">
-                  <button disabled={saving} onClick={createArea} className="btn-primary flex-1 !py-3.5">
+              <div className="card-admin !p-4">
+                <h2 className="font-serif text-base font-bold text-navy-900">Nueva área</h2>
+                <label className="label mt-3">Nombre</label>
+                <input className="field !py-2.5 text-[15px]" value={newAreaName} onChange={(e) => setNewAreaName(e.target.value)} autoComplete="off" maxLength={40} />
+                <label className="label mt-3">Descripción</label>
+                <textarea className="field min-h-16 !py-2.5 text-[15px]" value={newAreaDesc} onChange={(e) => setNewAreaDesc(e.target.value)} maxLength={200} />
+                <label className="label mt-3">Puntos (uno por línea, máx 6)</label>
+                <textarea className="field min-h-20 !py-2.5 text-[15px]" value={newAreaPoints} onChange={(e) => setNewAreaPoints(e.target.value)} />
+                <div className="mt-4 flex gap-2">
+                  <button disabled={saving} onClick={createArea} className="btn-primary flex-1 !py-2.5 text-[14px]">
                     {saving ? "Guardando…" : "Guardar área"}
                   </button>
-                  <button type="button" onClick={() => setShowNewArea(false)} className="btn-ghost">Atrás</button>
+                  <button type="button" onClick={() => setShowNewArea(false)} className="btn-ghost !py-2.5 text-[14px]">Atrás</button>
                 </div>
               </div>
             )}
@@ -568,27 +550,19 @@ export default function AdministradorPage() {
         )}
 
         {tab === "areas" && editingArea && (
-          <div className="card-admin mt-5">
-            <h2 className="font-serif text-xl font-bold text-navy-900">Editar área: {editingArea.name}</h2>
-            <label className="label mt-4">Nombre</label>
-            <input className="field" value={editingArea.name} onChange={(e) => setEditingArea({ ...editingArea, name: e.target.value })} autoComplete="off" maxLength={40} />
-            <label className="label mt-4">Descripción</label>
-            <textarea className="field min-h-20" value={editingArea.description} onChange={(e) => setEditingArea({ ...editingArea, description: e.target.value })} maxLength={200} />
-            <label className="label mt-4">Puntos (uno por línea, máx 6)</label>
-            <textarea className="field min-h-24" value={editingArea.points.join("\n")} onChange={(e) => setEditingArea({ ...editingArea, points: e.target.value.split("\n").map((s) => s.trim()).filter(Boolean).slice(0, 6) })} />
-            <label className="label mt-4">Icono</label>
-            <div className="flex flex-wrap gap-2">
-              {ICONS.map((ic) => (
-                <button key={ic} type="button" onClick={() => setEditingArea({ ...editingArea, icon: ic })} className={`rounded-full px-4 py-2 text-sm font-semibold ${editingArea.icon === ic ? "bg-navy-800 text-white" : "border border-navy-800/15 bg-white"}`}>
-                  {ic}
-                </button>
-              ))}
-            </div>
-            <label className="mt-4 flex min-h-[48px] cursor-pointer items-center gap-3 rounded-2xl border border-navy-800/10 px-4">
-              <input type="checkbox" checked={editingArea.visible} onChange={(e) => setEditingArea({ ...editingArea, visible: e.target.checked })} className="h-5 w-5 accent-[#0F2A44]" />
+          <div className="card-admin mt-4 !p-4">
+            <h2 className="font-serif text-base font-bold text-navy-900">Editar área: {editingArea.name}</h2>
+            <label className="label mt-3">Nombre</label>
+            <input className="field !py-2.5 text-[15px]" value={editingArea.name} onChange={(e) => setEditingArea({ ...editingArea, name: e.target.value })} autoComplete="off" maxLength={40} />
+            <label className="label mt-3">Descripción</label>
+            <textarea className="field min-h-16 !py-2.5 text-[15px]" value={editingArea.description} onChange={(e) => setEditingArea({ ...editingArea, description: e.target.value })} maxLength={200} />
+            <label className="label mt-3">Puntos (uno por línea, máx 6)</label>
+            <textarea className="field min-h-20 !py-2.5 text-[15px]" value={editingArea.points.join("\n")} onChange={(e) => setEditingArea({ ...editingArea, points: e.target.value.split("\n").map((s) => s.trim()).filter(Boolean).slice(0, 6) })} />
+            <label className="mt-3 flex min-h-[44px] cursor-pointer items-center gap-3 rounded-xl border border-navy-800/10 px-3">
+              <input type="checkbox" checked={editingArea.visible} onChange={(e) => setEditingArea({ ...editingArea, visible: e.target.checked })} className="h-4 w-4 accent-[#0F2A44]" />
               <span className="text-sm font-semibold text-navy-900">Visible en la página</span>
             </label>
-            <div className="mt-5 flex gap-3">
+            <div className="mt-4 flex gap-2">
               <button
                 disabled={saving}
                 onClick={async () => {
@@ -604,7 +578,7 @@ export default function AdministradorPage() {
                   applySaved(data);
                   setOk("Área guardada. Se publica en 1-2 minutos.");
                 }}
-                className="btn-primary flex-1 !py-3.5"
+                className="btn-primary flex-1 !py-2.5 text-[14px]"
               >
                 {saving ? "Guardando…" : "Guardar"}
               </button>
@@ -614,47 +588,47 @@ export default function AdministradorPage() {
         )}
 
         {tab === "equipo" && !editingAbogado && (
-          <div className="mt-5 space-y-3">
+          <div className="mt-4 space-y-2">
             {abogados.map((b) => (
-              <div key={b.id} className="flex items-center gap-3 rounded-3xl border border-navy-800/10 bg-white p-4 shadow-sm">
-                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-navy-800 font-serif text-sm font-black text-gold-300">
+              <div key={b.id} className="flex items-center gap-2 rounded-2xl border border-navy-800/10 bg-white px-3 py-3 shadow-sm">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-navy-800 font-serif text-xs font-black text-gold-300">
                   {b.name.split(" ").map((w) => w[0]).slice(0, 2).join("")}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-semibold text-navy-900">{b.name}</p>
-                  <p className="truncate text-xs text-ink/55">Céd. {b.cedula} · {b.rol}</p>
+                  <p className="truncate text-[14px] font-semibold text-navy-900">{b.name}</p>
+                  <p className="truncate text-[11px] text-ink/55">Céd. {b.cedula} · {b.rol}</p>
                 </div>
-                <button onClick={() => toggleAbogadoVisible(b)} className={`shrink-0 rounded-full px-3 py-2 text-[13px] font-bold ${b.visible ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-500"}`}>
+                <button onClick={() => toggleAbogadoVisible(b)} className={`shrink-0 rounded-full px-2.5 py-1.5 text-xs font-bold ${b.visible ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-500"}`}>
                   {b.visible ? "Visible" : "Oculto"}
                 </button>
-                <button onClick={() => setEditingAbogado({ ...b })} className="shrink-0 rounded-full bg-navy-800 px-3.5 py-2 text-sm font-semibold text-white">
+                <button onClick={() => setEditingAbogado({ ...b })} className="shrink-0 rounded-full bg-navy-800 px-2.5 py-1.5 text-xs font-semibold text-white">
                   Editar
                 </button>
-                <button onClick={() => deleteAbogado(b.id)} className="shrink-0 rounded-full bg-red-50 px-3 py-2 text-sm font-bold text-red-700">Borrar</button>
+                <button onClick={() => deleteAbogado(b.id)} className="shrink-0 rounded-full bg-red-50 px-2.5 py-1.5 text-xs font-bold text-red-700">Borrar</button>
               </div>
             ))}
             {!showNewAbogado ? (
-              <button onClick={() => { setShowNewAbogado(true); setError(""); setOk(""); }} className="w-full rounded-3xl border-2 border-dashed border-navy-800/20 p-5 font-bold text-navy-800">+ Agregar abogado</button>
+              <button onClick={() => { setShowNewAbogado(true); setError(""); setOk(""); }} className="w-full rounded-2xl border-2 border-dashed border-navy-800/15 py-3 text-sm font-bold text-navy-800">+ Agregar abogado</button>
             ) : (
-              <div className="card-admin">
-                <h2 className="font-serif text-xl font-bold text-navy-900">Nuevo abogado</h2>
-                <label className="label mt-4">Nombre completo</label>
-                <input className="field" value={newAbName} onChange={(e) => setNewAbName(e.target.value)} autoComplete="off" maxLength={80} />
-                <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="card-admin !p-4">
+                <h2 className="font-serif text-base font-bold text-navy-900">Nuevo abogado</h2>
+                <label className="label mt-3">Nombre completo</label>
+                <input className="field !py-2.5 text-[15px]" value={newAbName} onChange={(e) => setNewAbName(e.target.value)} autoComplete="off" maxLength={80} />
+                <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div>
                     <label className="label">Cédula</label>
-                    <input className="field" value={newAbCedula} onChange={(e) => setNewAbCedula(e.target.value.replace(/\D/g, ""))} inputMode="numeric" autoComplete="off" />
+                    <input className="field !py-2.5 text-[15px]" value={newAbCedula} onChange={(e) => setNewAbCedula(e.target.value.replace(/\D/g, ""))} inputMode="numeric" autoComplete="off" />
                   </div>
                   <div>
                     <label className="label">Rol</label>
-                    <input className="field" value={newAbRol} onChange={(e) => setNewAbRol(e.target.value)} autoComplete="off" />
+                    <input className="field !py-2.5 text-[15px]" value={newAbRol} onChange={(e) => setNewAbRol(e.target.value)} autoComplete="off" />
                   </div>
                 </div>
-                <label className="label mt-4">Presentación</label>
-                <textarea className="field min-h-20" value={newAbBio} onChange={(e) => setNewAbBio(e.target.value)} maxLength={180} />
-                <div className="mt-5 flex gap-3">
-                  <button disabled={saving} onClick={createAbogado} className="btn-primary flex-1 !py-3.5">{saving ? "Guardando…" : "Guardar abogado"}</button>
-                  <button type="button" onClick={() => setShowNewAbogado(false)} className="btn-ghost">Atrás</button>
+                <label className="label mt-3">Presentación</label>
+                <textarea className="field min-h-16 !py-2.5 text-[15px]" value={newAbBio} onChange={(e) => setNewAbBio(e.target.value)} maxLength={180} />
+                <div className="mt-4 flex gap-2">
+                  <button disabled={saving} onClick={createAbogado} className="btn-primary flex-1 !py-2.5 text-[14px]">{saving ? "Guardando…" : "Guardar abogado"}</button>
+                  <button type="button" onClick={() => setShowNewAbogado(false)} className="btn-ghost !py-2.5 text-[14px]">Atrás</button>
                 </div>
               </div>
             )}
@@ -662,11 +636,11 @@ export default function AdministradorPage() {
         )}
 
         {tab === "equipo" && editingAbogado && (
-          <div className="card-admin mt-5">
-            <h2 className="font-serif text-xl font-bold text-navy-900">Editar abogado</h2>
-            <label className="label mt-4">Nombre completo</label>
-            <input className="field" value={editingAbogado.name} onChange={(e) => setEditingAbogado({ ...editingAbogado, name: e.target.value })} autoComplete="off" maxLength={80} />
-            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="card-admin mt-4 !p-4">
+            <h2 className="font-serif text-base font-bold text-navy-900">Editar abogado</h2>
+            <label className="label mt-3">Nombre completo</label>
+            <input className="field !py-2.5 text-[15px]" value={editingAbogado.name} onChange={(e) => setEditingAbogado({ ...editingAbogado, name: e.target.value })} autoComplete="off" maxLength={80} />
+            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label className="label">Cédula Profesional Federal</label>
                 <input className="field" value={editingAbogado.cedula} onChange={(e) => setEditingAbogado({ ...editingAbogado, cedula: e.target.value.replace(/\D/g, "") })} inputMode="numeric" autoComplete="off" />
@@ -676,9 +650,9 @@ export default function AdministradorPage() {
                 <input className="field" value={editingAbogado.rol} onChange={(e) => setEditingAbogado({ ...editingAbogado, rol: e.target.value })} autoComplete="off" />
               </div>
             </div>
-            <label className="label mt-4">Presentación corta</label>
-            <textarea className="field min-h-20" value={editingAbogado.bio} onChange={(e) => setEditingAbogado({ ...editingAbogado, bio: e.target.value })} maxLength={180} />
-            <div className="mt-5 flex gap-3">
+            <label className="label mt-3">Presentación corta</label>
+            <textarea className="field min-h-16 !py-2.5 text-[15px]" value={editingAbogado.bio} onChange={(e) => setEditingAbogado({ ...editingAbogado, bio: e.target.value })} maxLength={180} />
+            <div className="mt-4 flex gap-2">
               <button
                 disabled={saving}
                 onClick={async () => {
@@ -694,55 +668,23 @@ export default function AdministradorPage() {
                   applySaved(data);
                   setOk("Equipo guardado. Se publica en 1-2 minutos.");
                 }}
-                className="btn-primary flex-1 !py-3.5"
+                className="btn-primary flex-1 !py-2.5 text-[14px]"
               >
                 {saving ? "Guardando…" : "Guardar"}
               </button>
-              <button type="button" onClick={() => setEditingAbogado(null)} className="btn-ghost">Atrás</button>
+              <button type="button" onClick={() => setEditingAbogado(null)} className="btn-ghost !py-2.5 text-[14px]">Atrás</button>
             </div>
-          </div>
-        )}
-
-        {tab === "datos" && settings && (
-          <div className="card-admin mt-5">
-            <h2 className="font-serif text-xl font-bold text-navy-900">Datos del despacho</h2>
-            <label className="label mt-4">Número de WhatsApp (con código país, sin + ni espacios)</label>
-            <input className="field" value={settings.whatsapp_number} onChange={(e) => setSettings({ ...settings, whatsapp_number: e.target.value.replace(/\D/g, "") })} inputMode="numeric" autoComplete="off" />
-            <p className="hint">Con código de país, sin + ni espacios.</p>
-            <label className="label mt-4">Teléfono visible</label>
-            <input className="field" value={settings.phone_display} onChange={(e) => setSettings({ ...settings, phone_display: e.target.value })} autoComplete="off" />
-            <label className="label mt-4">Mensaje inicial de WhatsApp</label>
-            <textarea className="field min-h-20" value={settings.whatsapp_message} onChange={(e) => setSettings({ ...settings, whatsapp_message: e.target.value })} autoComplete="off" />
-            <label className="label mt-4">Correo</label>
-            <input className="field" value={settings.email} onChange={(e) => setSettings({ ...settings, email: e.target.value })} inputMode="email" autoComplete="off" />
-            <label className="label mt-4">Dirección</label>
-            <input className="field" value={settings.address} onChange={(e) => setSettings({ ...settings, address: e.target.value })} autoComplete="off" />
-            <label className="label mt-4">Horario</label>
-            <input className="field" value={settings.hours} onChange={(e) => setSettings({ ...settings, hours: e.target.value })} autoComplete="off" />
-            <label className="label mt-4">Lema</label>
-            <input className="field" value={settings.slogan} onChange={(e) => setSettings({ ...settings, slogan: e.target.value })} autoComplete="off" />
-            <label className="label mt-4">Enlace de Google Maps</label>
-            <input className="field" value={settings.maps_url} onChange={(e) => setSettings({ ...settings, maps_url: e.target.value })} autoComplete="off" />
-            <button disabled={saving} onClick={() => saveAll()} className="btn-primary mt-5 w-full !py-3.5">
-              {saving ? "Guardando…" : "Guardar datos"}
-            </button>
           </div>
         )}
 
         {tab === "seguridad" && (
           <div className="mt-5 space-y-4">
-            <div className="overflow-hidden rounded-4xl border border-navy-800/10 bg-gradient-to-br from-navy-800 to-navy-950 p-6 text-white shadow-card">
-              <div className="flex items-center gap-4">
-                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gold-400/15 text-2xl">🔐</span>
-                <div>
-                  <h2 className="font-serif text-xl font-black">Seguridad del panel</h2>
-                  <p className="mt-0.5 text-[13px] text-white/60">Sesión: <span className="font-bold text-gold-200">{meUser || "…"}</span></p>
-                </div>
+            <div className="overflow-hidden rounded-4xl border border-navy-800/10 bg-gradient-to-br from-navy-800 to-navy-950 p-5 text-white shadow-card">
+              <div className="flex items-center gap-3">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gold-400/15 text-lg">🔐</span>
+                <h2 className="font-serif text-base font-black">Seguridad del panel</h2>
               </div>
-              <ul className="mt-4 space-y-2 text-[13.5px] leading-relaxed text-white/75">
-                <li className="flex gap-2.5"><span aria-hidden className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-gold-400" /><span>Para cambiar el usuario o la contraseña primero escriba las <b>actuales</b>.</span></li>
-                <li className="flex gap-2.5"><span aria-hidden className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-gold-400" /><span>El cambio se activa en 1-2 minutos; después entre con sus datos nuevos.</span></li>
-              </ul>
+              <p className="mt-3 text-[13px] leading-relaxed text-white/70">Para cambiar el usuario o la contraseña primero escriba las <b>actuales</b>. El cambio se activa en 1-2 minutos.</p>
             </div>
 
             {secDone && (

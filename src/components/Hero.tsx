@@ -32,7 +32,7 @@ export default function Hero({ settings }: Props) {
       <div aria-hidden className="absolute inset-x-0 bottom-0 h-[2px] bg-gradient-to-r from-transparent via-gold-400/70 to-transparent" />
 
       <div className="relative mx-auto max-w-6xl px-4 pb-12 pt-24 md:pb-16 md:pt-32 lg:px-8">
-        <div className="max-w-2xl">
+        <div className="mx-auto max-w-2xl text-center">
           <p className="hero-enter inline-flex items-center gap-2.5 rounded-full border border-gold-400/50 bg-gold-400/10 px-5 py-2 text-[11.5px] font-bold uppercase tracking-[0.22em] text-gold-200 shadow-gold">
             <span className="h-1.5 w-1.5 rounded-full bg-gold-400" />
             {settings.city}
@@ -44,18 +44,18 @@ export default function Hero({ settings }: Props) {
             </em>{" "}
             y compromiso
           </h1>
-          <div aria-hidden className="hero-enter hero-enter-2 mt-6 h-[2px] w-24 rounded bg-gradient-to-r from-gold-400 to-transparent" />
-          <p className="hero-enter hero-enter-2 mt-5 max-w-xl text-[15.5px] leading-relaxed text-white/85 md:text-lg">
+          <div aria-hidden className="hero-enter hero-enter-2 mx-auto mt-6 h-[2px] w-24 rounded bg-gradient-to-r from-gold-400 to-transparent" />
+          <p className="hero-enter hero-enter-2 mx-auto mt-5 max-w-xl text-[15.5px] leading-relaxed text-white/85 md:text-lg">
             {settings.brand_name} · {settings.tagline}. Atención directa de
             abogados cedulados en materia Civil, Familiar, Penal, Agraria,
             Mercantil, Amparo y Notarial.
           </p>
-          <div className="hero-enter hero-enter-3 mt-8">
-            <a href="#agendar" className="btn-gold w-full sm:w-auto">
+          <div className="hero-enter hero-enter-3 mt-8 flex justify-center">
+            <a href="#agendar" className="btn-gold">
               Agendar cita
             </a>
           </div>
-          <p className="hero-enter hero-enter-3 mt-4 inline-flex items-center gap-2 text-[13px] font-semibold text-white/65">
+          <p className="hero-enter hero-enter-3 mt-4 inline-flex items-center justify-center gap-2 text-[13px] font-semibold text-white/65">
             <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-gold-400" />
             {settings.hours}
           </p>
