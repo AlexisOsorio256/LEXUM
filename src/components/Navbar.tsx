@@ -41,10 +41,10 @@ export default function Navbar() {
       >
         🔒 Administrador
       </a>
-      {/* En móvil, acceso discreto en la esquina también */}
+      {/* En móvil y tablet, acceso discreto en la esquina también */}
       <a
         href="/administrador"
-        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-navy-800 px-3.5 py-1.5 text-xs font-semibold text-white md:hidden"
+        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-navy-800 px-3.5 py-1.5 text-xs font-semibold text-white md:right-4 lg:hidden"
         aria-label="Administrador"
       >
         🔒
