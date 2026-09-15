@@ -37,9 +37,11 @@ export default function Equipo({ abogados }: { abogados: Abogado[] }) {
                   {initials(b.name)}
                 </span>
                 <h3 className="mt-4 font-serif text-[19px] font-bold leading-snug">{b.name}</h3>
-                <p className="mt-1 text-[12.5px] font-bold uppercase tracking-[0.16em] text-gold-300">
-                  {b.rol}
-                </p>
+                {b.rol.trim() ? (
+                  <p className="mt-1 text-[12.5px] font-bold uppercase tracking-[0.16em] text-gold-300">
+                    {b.rol}
+                  </p>
+                ) : null}
               </div>
               <div className="px-6 py-5">
                 <p className="rounded-2xl bg-navy-50 px-4 py-2.5 text-center text-[13px] font-semibold text-navy-800">

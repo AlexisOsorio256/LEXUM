@@ -87,20 +87,20 @@
   ],
   "abogados": [
     {
-      "id": "fernando-vazquez",
-      "name": "José Fernando Vázquez Silva",
-      "cedula": "13832634",
-      "rol": "Abogado · Socio",
-      "bio": "Atención directa y estrategia legal clara desde la primera cita.",
+      "id": "cristobal-carreon",
+      "name": "Cristóbal de Jesús Carreón Maciel",
+      "cedula": "6730598",
+      "rol": "Abogado · Socio con mayor experiencia",
+      "bio": "Trayectoria más amplia del despacho; dominio integral en todas las materias y liderazgo en estrategia y litigio.",
       "visible": true,
       "sort_order": 1
     },
     {
-      "id": "cristobal-carreon",
-      "name": "Cristóbal de Jesús Carreón Maciel",
-      "cedula": "6730598",
-      "rol": "Abogado · Socio",
-      "bio": "Experiencia sólida en juicio y negociación para tu tranquilidad.",
+      "id": "fernando-vazquez",
+      "name": "José Fernando Vázquez Silva",
+      "cedula": "13832634",
+      "rol": "",
+      "bio": "Atención directa y estrategia legal clara desde la primera cita.",
       "visible": true,
       "sort_order": 2
     },
@@ -108,7 +108,7 @@
       "id": "cristina-carbajal",
       "name": "Cristina Carbajal Herrera",
       "cedula": "14952222",
-      "rol": "Abogada · Socia",
+      "rol": "",
       "bio": "Acompañamiento cercano, sobre todo en materia familiar.",
       "visible": true,
       "sort_order": 3
