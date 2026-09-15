@@ -33,35 +33,36 @@ export default function Navbar({ waNumber, phoneDisplay }: Props) {
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
         scrolled
           ? "border-b border-navy-800/10 bg-white/90 shadow-card backdrop-blur-xl"
-          : "border-b border-transparent bg-white/70 backdrop-blur-lg"
+          : "border-b border-transparent bg-white/80 backdrop-blur-lg"
       }`}
     >
-      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:h-[76px] lg:px-8">
-        <a href="#inicio" className="flex items-center gap-2.5" aria-label="LEXUM inicio">
-          <Logo size={44} />
-          <span className="leading-tight">
-            <span className="block font-serif text-[20px] font-black tracking-wide text-navy-900">
+      <nav className="mx-auto flex h-[68px] max-w-6xl items-center justify-between px-4 md:h-[78px] lg:px-8">
+        <a href="#inicio" className="flex items-center gap-3" aria-label="LEXUM inicio">
+          <Logo size={48} />
+          <span className="flex flex-col justify-center leading-none">
+            <span className="font-serif text-[22px] font-black tracking-wide text-navy-900 md:text-[24px]">
               LEX<span className="text-navy-600">UM</span>
             </span>
-            <span className="block text-[10.5px] font-bold uppercase tracking-[0.24em] text-gold-500">
+            <span className="mt-0.5 text-[10.5px] font-bold uppercase tracking-[0.24em] text-gold-500">
               Despacho Jurídico
             </span>
           </span>
         </a>
 
-        <div className="hidden items-center gap-7 lg:flex">
+        <div className="hidden items-center gap-6 lg:flex">
           {NAV_LINKS.map((l) => (
             <a
               key={l.href}
               href={l.href}
-              className="nav-link text-[14.5px] font-medium text-navy-900/75 transition hover:text-navy-800"
+              className="nav-link text-[14.5px] font-medium text-navy-900/70 transition hover:text-navy-900"
             >
               {l.label}
             </a>
           ))}
+          <span aria-hidden className="h-6 w-px bg-navy-800/15" />
           <a
             href="/administrador"
-            className="text-[13px] font-medium text-navy-900/40 transition hover:text-navy-800"
+            className="text-[13px] font-semibold text-navy-900/45 transition hover:text-navy-900"
             title="Acceso administrador"
           >
             🔒 Administrador

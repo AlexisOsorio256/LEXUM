@@ -68,6 +68,13 @@ h3 {
     transition-duration: 0.001s !important;
   }
 }
+@media (max-width: 768px) {
+  /* reveal más sutil en móvil: menos desplazamiento y duración */
+  .reveal {
+    transform: translateY(14px);
+    transition-duration: 0.55s;
+  }
+}
 
 /* ---- hero ---- */
 @keyframes heroIn {
@@ -163,19 +170,34 @@ h3 {
 .card {
   background: rgba(255, 255, 255, 0.96);
   @apply rounded-4xl border border-navy-800/10 shadow-card;
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
 }
 @media (hover: hover) and (pointer: fine) {
   .card {
     background: rgba(255, 255, 255, 0.88);
     backdrop-filter: blur(18px) saturate(1.4);
     -webkit-backdrop-filter: blur(18px) saturate(1.4);
-    transition:
-      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 24px 60px -18px rgba(10, 26, 47, 0.3);
+    box-shadow: 0 24px 60px -18px rgba(10, 26, 47, 0.28);
+  }
+  .card:active {
+    transform: translateY(-1px);
+  }
+}
+@media (max-width: 768px) {
+  .card {
+    /* en celular sin blur ni salto: scroll fluido */
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .card:hover {
+    transform: none;
+    box-shadow: 0 6px 24px -8px rgba(10, 26, 47, 0.14);
   }
 }
 .eyebrow {
