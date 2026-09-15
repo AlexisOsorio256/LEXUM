@@ -13,6 +13,8 @@ type Props = {
 export default function Agendar({ areas, waNumber }: Props) {
   const [nombre, setNombre] = useState("");
   const [area, setArea] = useState("");
+  const [fecha, setFecha] = useState("");
+  const [hora, setHora] = useState("");
   const [mensaje, setMensaje] = useState("");
   const [error, setError] = useState("");
 
@@ -37,7 +39,7 @@ export default function Agendar({ areas, waNumber }: Props) {
       return;
     }
     setError("");
-    const url = citaLink({ nombre, area, mensaje }, waNumber);
+    const url = citaLink({ nombre, area, fecha, hora, mensaje }, waNumber);
     window.open(url, "_blank", "noopener");
   }
 
@@ -99,6 +101,29 @@ export default function Agendar({ areas, waNumber }: Props) {
             ))}
             <option value="Otro asunto">Otro asunto</option>
           </select>
+
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <div>
+              <label className="label" htmlFor="cita-fecha">Fecha preferida</label>
+              <input
+                id="cita-fecha"
+                type="date"
+                className="field"
+                value={fecha}
+                onChange={(e) => setFecha(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="label" htmlFor="cita-hora">Hora preferida</label>
+              <input
+                id="cita-hora"
+                type="time"
+                className="field"
+                value={hora}
+                onChange={(e) => setHora(e.target.value)}
+              />
+            </div>
+          </div>
 
           <label className="label mt-4" htmlFor="cita-msg">Cuéntanos en 1-2 líneas (opcional)</label>
           <textarea

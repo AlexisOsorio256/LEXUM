@@ -53,7 +53,8 @@ export default function Contacto({ settings }: Props) {
   ];
 
   return (
-    <section id="contacto" className="bg-navy-900 text-white">
+    <section id="contacto" className="relative bg-navy-800 text-white">
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(201,162,39,0.12)_0%,transparent_70%)]" />
       <div className="mx-auto max-w-6xl px-4 py-14 md:py-20 lg:px-8">
         <div className="reveal mx-auto max-w-2xl text-center">
           <p className="eyebrow mx-auto !border-gold-400/40 !bg-white/10 !text-gold-200">

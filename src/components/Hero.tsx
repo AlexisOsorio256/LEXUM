@@ -1,6 +1,5 @@
 "use client";
 
-import { telLink } from "@/lib/whatsapp";
 import type { SiteSettings } from "@/lib/types";
 
 type Props = { settings: SiteSettings };
@@ -13,30 +12,40 @@ export default function Hero({ settings }: Props) {
   return (
     <section id="inicio" className="relative overflow-hidden bg-navy-950 text-white">
       <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-navy-950 via-navy-900 to-navy-950" />
-        <div className="absolute -top-24 left-1/2 h-[320px] w-[680px] -translate-x-1/2 rounded-full bg-gold-400/10 blur-3xl" />
-        <div className="absolute bottom-10 left-[6%] hidden opacity-20 lg:block">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_50%_0%,#1E4A7A_0%,#0A1A2F_62%,#060F1D_100%)]" />
+        <div
+          className="absolute inset-0 opacity-[0.05]"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(115deg, #fff 0, #fff 1px, transparent 1px, transparent 14px)",
+          }}
+        />
+        <div className="absolute left-1/2 top-0 h-[280px] w-[min(720px,90vw)] -translate-x-1/2 rounded-full bg-gold-400/15 blur-3xl" />
+        <div className="absolute bottom-8 left-[5%] hidden opacity-30 lg:block">
           <ScaleMark />
         </div>
-        <div className="absolute bottom-10 right-[6%] hidden opacity-20 lg:block">
+        <div className="absolute bottom-8 right-[5%] hidden opacity-30 lg:block">
           <ScaleMark />
         </div>
       </div>
+      <div aria-hidden className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-gold-400 to-transparent" />
+      <div aria-hidden className="absolute inset-x-0 bottom-0 h-[2px] bg-gradient-to-r from-transparent via-gold-400/70 to-transparent" />
 
       <div className="relative mx-auto max-w-6xl px-4 pb-12 pt-24 md:pb-16 md:pt-32 lg:px-8">
         <div className="max-w-2xl">
-          <p className="hero-enter eyebrow !border-gold-400/40 !bg-white/10 !text-gold-200">
+          <p className="hero-enter inline-flex items-center gap-2.5 rounded-full border border-gold-400/50 bg-gold-400/10 px-5 py-2 text-[11.5px] font-bold uppercase tracking-[0.22em] text-gold-200 shadow-gold">
             <span className="h-1.5 w-1.5 rounded-full bg-gold-400" />
             {settings.city}
           </p>
-          <h1 className="hero-enter hero-enter-1 mt-5 font-serif text-[clamp(2.5rem,8vw,4.5rem)] font-black leading-[1.02]">
+          <h1 className="hero-enter hero-enter-1 mt-6 font-serif text-[clamp(2.6rem,8vw,4.6rem)] font-black leading-[1.02] drop-shadow-lg">
             Defendiendo tus derechos{" "}
-            <span className="bg-gradient-to-r from-gold-200 via-gold-400 to-gold-200 bg-clip-text text-transparent">
+            <em className="bg-gradient-to-r from-gold-200 via-gold-400 to-gold-200 bg-clip-text text-transparent">
               con experiencia
-            </span>{" "}
+            </em>{" "}
             y compromiso
           </h1>
-          <p className="hero-enter hero-enter-2 mt-5 max-w-xl text-[15.5px] leading-relaxed text-white/80 md:text-lg">
+          <div aria-hidden className="hero-enter hero-enter-2 mt-6 h-[2px] w-24 rounded bg-gradient-to-r from-gold-400 to-transparent" />
+          <p className="hero-enter hero-enter-2 mt-5 max-w-xl text-[15.5px] leading-relaxed text-white/85 md:text-lg">
             {settings.brand_name} · {settings.tagline}. Atención directa de
             abogados cedulados en materia Civil, Familiar, Penal, Agraria,
             Mercantil, Amparo y Notarial.
@@ -44,12 +53,6 @@ export default function Hero({ settings }: Props) {
           <div className="hero-enter hero-enter-3 mt-8 flex flex-col gap-3 sm:flex-row">
             <a href="#agendar" className="btn-gold w-full sm:w-auto">
               Agendar cita
-            </a>
-            <a
-              href={telLink(settings.whatsapp_number)}
-              className="w-full rounded-full border border-white/25 bg-white/10 px-7 py-4 text-center text-base font-semibold text-white backdrop-blur transition hover:bg-white/20 active:scale-[0.98] sm:w-auto"
-            >
-              {settings.phone_display}
             </a>
           </div>
           <p className="hero-enter hero-enter-3 mt-6 text-[13px] font-medium tracking-wide text-white/55">
